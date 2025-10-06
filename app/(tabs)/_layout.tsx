@@ -1,35 +1,34 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { TabBarLabel } from "@/components/common/tab-bar-components";
+import { colors } from "@/constants/colors";
+import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+    const { bottom } = useSafeAreaInsets();
+    return (
+        <Tabs
+            screenOptions={{
+                headerShown: false,
+                lazy: false,
+                tabBarLabel: TabBarLabel,
+                tabBarInactiveBackgroundColor: "white",
+                tabBarLabelStyle: {
+                    fontSize: 14,
+                },
+                tabBarItemStyle: {
+                    margin: 10,
+                    borderRadius: 20,
+                    backgroundColor: colors.primary,
+                },
+                tabBarStyle: {
+                    backgroundColor: "white",
+                    height: 80 + bottom,
+                },
+            }}
+        >
+            <Tabs.Screen name="scan" />
+            <Tabs.Screen name="customer" />
+            <Tabs.Screen name="warehouse" />
+        </Tabs>
+    );
 }
