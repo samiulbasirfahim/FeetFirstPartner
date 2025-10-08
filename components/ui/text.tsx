@@ -1,4 +1,5 @@
 import { colors } from "@/constants/colors";
+import { Captions } from "lucide-react-native";
 import { ReactNode } from "react";
 import { StyleSheet, Text, TextProps, TextStyle } from "react-native";
 
@@ -8,11 +9,17 @@ const variants: Variants = {
     title: {
         fontSize: 24,
         color: colors.foreground,
+        fontWeight: "semibold",
     },
     primary: {
         fontSize: 16,
         color: colors.foreground,
     },
+    caption: {
+        fontSize: 14,
+        color: colors.muted,
+    },
+    base: {},
 };
 type Props = {
     children: ReactNode;
@@ -21,7 +28,7 @@ type Props = {
 
 export default function RNText({
     children,
-    variant = "primary",
+    variant = "base",
     style,
     ...props
 }: Props) {

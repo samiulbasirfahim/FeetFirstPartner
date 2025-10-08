@@ -1,0 +1,213 @@
+import { colors } from "@/constants/colors";
+import { LucideIcon } from "lucide-react-native";
+
+import {
+    TextStyle,
+    TouchableOpacity,
+    TouchableOpacityProps,
+    ViewStyle,
+} from "react-native";
+import RNText from "./text";
+
+type StyleVariant = {
+    text: TextStyle;
+    button: ViewStyle;
+};
+
+type Variants = Record<string, StyleVariant>;
+
+const variants: Variants = {
+    success: {
+        text: {
+            fontSize: 18,
+            color: colors.background,
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 4,
+            backgroundColor: colors.success,
+            padding: 10,
+            borderRadius: 10,
+            opacity: 0.8,
+        },
+    },
+    error: {
+        text: {
+            fontSize: 18,
+            color: colors.background,
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 4,
+            backgroundColor: colors.error,
+            padding: 10,
+            borderRadius: 10,
+            opacity: 0.8,
+        },
+    },
+
+    outline: {
+        text: {
+            fontSize: 18,
+            color: colors.foreground,
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            backgroundColor: colors.secondary,
+            borderWidth: 1,
+            borderColor: colors.border,
+            padding: 10,
+            borderRadius: 10,
+        },
+    },
+
+    primary: {
+        text: {
+            fontSize: 18,
+            color: colors.background,
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            backgroundColor: colors.primary,
+            padding: 10,
+            borderRadius: 10,
+        },
+    },
+};
+
+type Props = {
+    label: string;
+    icon?: LucideIcon;
+    variant?: keyof typeof variants;
+    size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
+    textStyle?: TextStyle;
+} & TouchableOpacityProps;
+
+export function RNButton({
+    label,
+    variant = "primary",
+    style,
+    ...props
+}: Props) {
+    const { size = "md" } = props as Props;
+
+    const sizeMap: Record<
+        NonNullable<Props["size"]>,
+        {
+            fontSize: number;
+            paddingVertical: number;
+            paddingHorizontal: number;
+            borderRadius?: number;
+            iconSize?: number;
+        }
+    > = {
+        xs: {
+            fontSize: 12,
+            paddingVertical: 4,
+            paddingHorizontal: 8,
+            borderRadius: 12,
+            iconSize: 12,
+        },
+        sm: {
+            fontSize: 14,
+            paddingVertical: 6,
+            paddingHorizontal: 10,
+            borderRadius: 8,
+            iconSize: 14,
+        },
+        md: {
+            fontSize: 18,
+            paddingVertical: 10,
+            paddingHorizontal: 12,
+            borderRadius: 10,
+            iconSize: 18,
+        },
+        lg: {
+            fontSize: 20,
+            paddingVertical: 12,
+            paddingHorizontal: 14,
+            borderRadius: 12,
+            iconSize: 20,
+        },
+        xl: {
+            fontSize: 22,
+            paddingVertical: 14,
+            paddingHorizontal: 16,
+            borderRadius: 14,
+            iconSize: 22,
+        },
+        "2xl": {
+            fontSize: 24,
+            paddingVertical: 16,
+            paddingHorizontal: 18,
+            borderRadius: 16,
+            iconSize: 24,
+        },
+        "3xl": {
+            fontSize: 26,
+            paddingVertical: 18,
+            paddingHorizontal: 20,
+            borderRadius: 18,
+            iconSize: 26,
+        },
+        "4xl": {
+            fontSize: 28,
+            paddingVertical: 20,
+            paddingHorizontal: 22,
+            borderRadius: 20,
+            iconSize: 28,
+        },
+        "5xl": {
+            fontSize: 30,
+            paddingVertical: 22,
+            paddingHorizontal: 24,
+            borderRadius: 22,
+            iconSize: 30,
+        },
+    };
+
+    const sizeStyles = sizeMap[size];
+
+    const buttonStyle = {
+        ...variants[variant].button,
+        paddingVertical: sizeStyles.paddingVertical,
+        paddingHorizontal: sizeStyles.paddingHorizontal,
+        borderRadius:
+            sizeStyles.borderRadius ?? variants[variant].button.borderRadius,
+        flexShrink: 0,
+        minWidth:
+            (sizeStyles.iconSize ?? Math.round(sizeStyles.fontSize * 1.1)) * 2 +
+            sizeStyles.paddingHorizontal * 2,
+    };
+
+    const textStyle = {
+        ...variants[variant].text,
+        fontSize: sizeStyles.fontSize,
+    };
+
+    const Icon = (props as any).icon as LucideIcon | undefined;
+    const iconSize = sizeStyles.iconSize ?? Math.round(sizeStyles.fontSize * 1.1);
+    const iconColor =
+        (variants[variant].text.color as string) || colors.background;
+
+    return (
+        <TouchableOpacity
+            style={[buttonStyle, style]}
+            activeOpacity={0.8}
+            {...props}
+        >
+            {Icon && <Icon color={iconColor} size={iconSize} />}
+            <RNText variant="base" style={[textStyle, props.textStyle]}>
+                {label}
+            </RNText>
+        </TouchableOpacity>
+    );
+}

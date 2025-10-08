@@ -1,4 +1,7 @@
 import { TabIconRenderer } from "@/components/common/tab-bar-components";
+import { WarehouseDataList } from "@/components/common/warehouse-data-list";
+import { WareHouseHeader } from "@/components/common/warehouse-header";
+import RNSafeAreaView from "@/components/layout/SafeAreaView";
 import { Tabs } from "expo-router";
 import { Package } from "lucide-react-native";
 
@@ -13,6 +16,11 @@ export default function WarehouseTab() {
                     },
                 }}
             />
+
+            <RNSafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
+                <WareHouseHeader />
+                <WarehouseDataList />
+            </RNSafeAreaView>
         </>
     );
 }

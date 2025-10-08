@@ -1,6 +1,6 @@
 import { colors } from "@/constants/colors";
 import { LucideIcon } from "lucide-react-native";
-import { Text } from "react-native";
+import RNText from "../ui/text";
 
 type Props = {
     icon: LucideIcon;
@@ -9,7 +9,8 @@ type Props = {
 export function TabIconRenderer({ focused, ...prop }: Props) {
     return (
         <prop.icon
-            strokeWidth={1.4}
+            strokeWidth={1.5}
+            fill={focused ? colors.background : "transparent"}
             color={focused ? colors.background : colors.foreground}
         />
     );
@@ -17,7 +18,7 @@ export function TabIconRenderer({ focused, ...prop }: Props) {
 
 export function TabBarLabel(props: any) {
     return (
-        <Text
+        <RNText
             style={{
                 color: props.focused ? colors.background : colors.foreground,
             }}
