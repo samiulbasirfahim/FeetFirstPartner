@@ -47,6 +47,7 @@ export function WareHouseHeader() {
                     if (disbleButton) return;
                     setDisableButton(true);
                     // await scanWarehouse();
+                    await ScanCustomerForm();
                     setDisableButton(false);
                 }}
                 style={{ width: "100%" }}

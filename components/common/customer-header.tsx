@@ -3,9 +3,11 @@ import RNText from "../ui/text";
 import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TextInput } from "react-native-gesture-handler";
+import { useCustomerStore } from "@/store/customer";
 
 export function CustomerHeader() {
     const { top } = useSafeAreaInsets();
+    const { setSearchQuery } = useCustomerStore();
     return (
         <>
             <View style={[styles.container, { paddingTop: top }]}>
@@ -14,6 +16,7 @@ export function CustomerHeader() {
                     style={styles.inputField}
                     placeholder="Suchen..."
                     placeholderTextColor={colors.muted}
+                    onChangeText={setSearchQuery}
                 />
             </View>
         </>

@@ -11,7 +11,7 @@ export default function TabLayout() {
                 headerShown: false,
                 lazy: false,
                 tabBarLabel: TabBarLabel,
-                tabBarInactiveBackgroundColor: colors.white,
+                tabBarInactiveBackgroundColor: "white",
                 tabBarLabelStyle: {
                     fontSize: 14,
                 },
@@ -21,7 +21,7 @@ export default function TabLayout() {
                     backgroundColor: colors.primary,
                 },
                 tabBarStyle: {
-                    backgroundColor: colors.white,
+                    backgroundColor: "white",
                     height: 80 + bottom,
                 },
             }}

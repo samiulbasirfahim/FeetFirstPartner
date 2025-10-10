@@ -1,3 +1,5 @@
+import { OrderTab } from "@/components/common/OrderTab";
+import { RecipeTab } from "@/components/common/RecipeTab";
 import { ScanTabBar } from "@/components/common/scan-tab-bar";
 import { TabIconRenderer } from "@/components/common/tab-bar-components";
 import RNSafeAreaView from "@/components/layout/SafeAreaView";
@@ -21,6 +23,8 @@ export default function ScanTab() {
 
             <RNSafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
                 <ScanTabBar setActiveTab={setActiveTab} activeTab={activeTab} />
+
+                {activeTab === "orders" ? <OrderTab /> : <RecipeTab />}
             </RNSafeAreaView>
         </>
     );
