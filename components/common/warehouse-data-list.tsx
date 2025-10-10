@@ -1,10 +1,10 @@
-import { FlatList, StyleSheet, View } from "react-native";
-import { WarehouseData } from "@/types/warehouse-data";
-import RNText from "../ui/text";
 import { colors } from "@/constants/colors";
-import { RNButton } from "../ui/button";
-import { AlertTriangle, Camera, CheckCircle, Edit } from "lucide-react-native";
 import { useWarehouseStore } from "@/store/warehouse";
+import { WarehouseData } from "@/types/warehouse-data";
+import { AlertTriangle, Camera, CheckCircle, Edit } from "lucide-react-native";
+import { FlatList, StyleSheet, View } from "react-native";
+import { RNButton } from "../ui/button";
+import RNText from "../ui/text";
 
 const renderItem = ({ item }: { item: WarehouseData }) => {
     return (
@@ -79,21 +79,22 @@ const renderItemStyles = StyleSheet.create({
 export function WarehouseDataList() {
     const { warehouseData } = useWarehouseStore();
 
+    const handleAddInventory = () => {
+        // Placeholder - wire to navigation or modal as needed
+        console.log("Add Inventory pressed");
+    };
+
     return (
         <View style={{ flex: 1, paddingHorizontal: 12 }}>
             {warehouseData.length === 0 ? (
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        paddingVertical: 12,
-                    }}
-                >
-                    <RNText variant="caption" style={{ textAlign: "center" }}>
+                <View style={styles.emptyContainer}>
+                    <RNText variant="caption" style={{ textAlign: "center", marginBottom: 12 }}>
                         Keine Produkte gefunden. Bitte fügen Sie Produkte hinzu oder passen
                         Sie Ihre Suchkriterien an.
                     </RNText>
+                    <View style={{ flexDirection: "row", gap: 8 }}>
+                        <RNButton label="Add Inventory" onPress={handleAddInventory} />
+                    </View>
                 </View>
             ) : (
                 <FlatList
@@ -108,3 +109,15 @@ export function WarehouseDataList() {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    emptyContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        backgroundColor: colors.white,
+        borderRadius: 8,
+    },
+});

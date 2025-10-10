@@ -260,7 +260,9 @@ export const useWarehouseStore = create<WarehouseState>((set, get) => ({
         }),
     removeWarehouseItem: (id: number) =>
         set((state) => {
-            const nextInitial = state.initialWarehouseData.filter((item) => item.id !== id);
+            const nextInitial = state.initialWarehouseData.filter(
+                (item) => item.id !== id,
+            );
             return { initialWarehouseData: nextInitial, warehouseData: nextInitial };
         }),
 

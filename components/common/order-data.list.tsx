@@ -1,82 +1,72 @@
 import { colors } from "@/constants/colors";
-import { useCustomerStore } from "@/store/customer";
-import { Calendar, ShoppingBag } from "lucide-react-native";
+import { DateRange, useOrderStore } from "@/store/order";
+import {
+    EuroIcon
+} from "lucide-react-native";
 import { FlatList, StyleSheet, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 
-export function CustomerDataList() {
-    const { customers } = useCustomerStore();
+export { DateRange };
 
-    const handleCreateCustomer = () => {
-        // Placeholder handler - caller can hook navigation or a modal here.
-        console.log("Create Customer pressed");
+export function OrderDataList() {
+    const { orders } = useOrderStore();
+
+    const handleCreateOrder = () => {
+        console.log(orders);
     };
 
-    const renderItem = ({ item }: { item: (typeof customers)[0] }) => {
+    const renderItem = ({ item }: { item: (typeof orders)[0] }) => {
         return (
             <View style={styles.renderItemcontainer}>
                 <View style={styles.labelContainer}>
-                    <RNText
-                        style={{
-                            maxWidth: "60%",
-                            fontWeight: "500",
-                            fontSize: 16,
-                        }}
-                    >
-                        {item.fullName}
+                    <RNText style={{ fontWeight: "500", fontSize: 16 }}>
+                        Auftrag {item.orderNumber}
                     </RNText>
                     <View style={{ flexShrink: 0 }}>
-                        {item.orderStatus === "ready" && (
+                        {item.status === "ready" && (
                             <RNButton label="Abholbereit" variant="primary" size="xs" />
                         )}
 
-                        {item.orderStatus === "pending" && (
+                        {item.status === "pending" && (
                             <RNButton label="Ausstehend" variant="outline" size="xs" />
                         )}
 
-                        {item.orderStatus === "completed" && (
+                        {item.status === "completed" && (
                             <RNButton label="Abgeschlossen" variant="outline" size="xs" />
                         )}
                     </View>
                 </View>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    <Calendar size={16} color={colors.muted} />
-                    <RNText style={{ color: colors.muted }}>{item.dateOfBirth}</RNText>
-                </View>
 
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    <ShoppingBag size={16} color={colors.muted} />
+                    {
+                        // <Users2 size={16} color={colors.muted} />
+                    }
+                    <RNText style={{ color: colors.muted }}>{item.customerName}</RNText>
+                </View>
+
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
                     <RNText style={{ color: colors.muted }}>
-                        Letzer Auftrag:
-                        {item.lastOrderDate}
+                        {item.price.toFixed(2)}
                     </RNText>
-                </View>
 
-                <RNText>{item.contact}</RNText>
+                    <EuroIcon size={16} color={colors.muted} />
+                </View>
             </View>
         );
     };
 
-    if (!customers || customers.length === 0) {
+    if (!orders || orders.length === 0) {
         return (
             <View style={[styles.container, styles.emptyContainer]}>
                 <RNText style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}>
-                    Keine Kunden gefunden
+                    Keine Aufträge gefunden
                 </RNText>
-                <RNText
-                    style={{ color: colors.muted, marginBottom: 16, textAlign: "center" }}
-                >
-                    Legen Sie einen neuen Kunden an, um Aufträge zu verwalten.
+                <RNText style={{ color: colors.muted, marginBottom: 16 }}>
+                    Erstellen Sie einen neuen Auftrag, um loszulegen.
                 </RNText>
                 <View style={styles.buttonContainer}>
-                    <RNButton
-                        textStyle={{
-                            textAlign: "center",
-                        }}
-                        label="Create Customer"
-                        onPress={handleCreateCustomer}
-                    />
+                    <RNButton label="Create Order" onPress={handleCreateOrder} />
                 </View>
             </View>
         );
@@ -85,7 +75,7 @@ export function CustomerDataList() {
     return (
         <View style={styles.container}>
             <FlatList
-                data={customers}
+                data={orders}
                 contentContainerStyle={{ paddingVertical: 12 }}
                 keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
                 renderItem={renderItem}
@@ -115,7 +105,6 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: "row",
         gap: 6,
-        textAlign: "center",
         paddingTop: 12,
     },
     emptyContainer: {
