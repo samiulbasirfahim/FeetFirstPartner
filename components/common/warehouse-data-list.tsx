@@ -79,22 +79,21 @@ const renderItemStyles = StyleSheet.create({
 export function WarehouseDataList() {
     const { warehouseData } = useWarehouseStore();
 
-    const handleAddInventory = () => {
-        // Placeholder - wire to navigation or modal as needed
-        console.log("Add Inventory pressed");
-    };
-
     return (
         <View style={{ flex: 1, paddingHorizontal: 12 }}>
             {warehouseData.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <RNText variant="caption" style={{ textAlign: "center", marginBottom: 12 }}>
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        paddingVertical: 12,
+                    }}
+                >
+                    <RNText variant="caption" style={{ textAlign: "center" }}>
                         Keine Produkte gefunden. Bitte fügen Sie Produkte hinzu oder passen
                         Sie Ihre Suchkriterien an.
                     </RNText>
-                    <View style={{ flexDirection: "row", gap: 8 }}>
-                        <RNButton label="Add Inventory" onPress={handleAddInventory} />
-                    </View>
                 </View>
             ) : (
                 <FlatList
@@ -109,15 +108,3 @@ export function WarehouseDataList() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    emptyContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        backgroundColor: colors.white,
-        borderRadius: 8,
-    },
-});

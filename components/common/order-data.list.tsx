@@ -1,17 +1,20 @@
 import { colors } from "@/constants/colors";
-import { DateRange, useOrderStore } from "@/store/order";
+import { useOrderStore } from "@/store/order";
 import {
-    EuroIcon
+    Calendar,
+    DollarSign,
+    EuroIcon,
+    ShoppingBag,
+    Users2,
 } from "lucide-react-native";
 import { FlatList, StyleSheet, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 
-export { DateRange };
-
 export function OrderDataList() {
     const { orders } = useOrderStore();
 
+    console.log(orders);
     const handleCreateOrder = () => {
         console.log(orders);
     };

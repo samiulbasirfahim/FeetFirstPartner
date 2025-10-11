@@ -8,11 +8,6 @@ import RNText from "../ui/text";
 export function CustomerDataList() {
     const { customers } = useCustomerStore();
 
-    const handleCreateCustomer = () => {
-        // Placeholder handler - caller can hook navigation or a modal here.
-        console.log("Create Customer pressed");
-    };
-
     const renderItem = ({ item }: { item: (typeof customers)[0] }) => {
         return (
             <View style={styles.renderItemcontainer}>
@@ -58,30 +53,6 @@ export function CustomerDataList() {
         );
     };
 
-    if (!customers || customers.length === 0) {
-        return (
-            <View style={[styles.container, styles.emptyContainer]}>
-                <RNText style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}>
-                    Keine Kunden gefunden
-                </RNText>
-                <RNText
-                    style={{ color: colors.muted, marginBottom: 16, textAlign: "center" }}
-                >
-                    Legen Sie einen neuen Kunden an, um Aufträge zu verwalten.
-                </RNText>
-                <View style={styles.buttonContainer}>
-                    <RNButton
-                        textStyle={{
-                            textAlign: "center",
-                        }}
-                        label="Create Customer"
-                        onPress={handleCreateCustomer}
-                    />
-                </View>
-            </View>
-        );
-    }
-
     return (
         <View style={styles.container}>
             <FlatList
@@ -115,15 +86,6 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: "row",
         gap: 6,
-        textAlign: "center",
         paddingTop: 12,
-    },
-    emptyContainer: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 20,
-        backgroundColor: colors.white,
-        borderRadius: 8,
     },
 });

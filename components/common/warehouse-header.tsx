@@ -7,11 +7,13 @@ import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 import { useWarehouseStore } from "@/store/warehouse";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useOtherStore } from "@/store/others";
 
 export function WareHouseHeader() {
     const { top } = useSafeAreaInsets();
     const [showSearch, setShowSearch] = useState<boolean>(false);
     const { setSearchQuery } = useWarehouseStore();
+    const { setWarehousePreview } = useOtherStore();
     const [disbleButton, setDisableButton] = useState(false);
 
     return (
@@ -47,7 +49,7 @@ export function WareHouseHeader() {
                     if (disbleButton) return;
                     setDisableButton(true);
                     // await scanWarehouse();
-                    await ScanCustomerForm();
+                    setWarehousePreview(true);
                     setDisableButton(false);
                 }}
                 style={{ width: "100%" }}
@@ -64,7 +66,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: "center",
         borderBottomWidth: 1,
-        backgroundColor: colors.white,
+        backgroundColor: "white",
         padding: 12,
         borderBottomColor: colors.border,
         paddingBottom: 12,
