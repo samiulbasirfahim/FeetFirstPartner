@@ -1,5 +1,4 @@
 import { colors } from "@/constants/colors";
-import { ScanCustomerForm } from "@/lib/scan-customer-form";
 import { Camera, Search, X } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
@@ -7,13 +6,13 @@ import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 import { useWarehouseStore } from "@/store/warehouse";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useOtherStore } from "@/store/others";
+import { useScanWarehouseData } from "@/lib/useScanWarehouseData";
 
 export function WareHouseHeader() {
     const { top } = useSafeAreaInsets();
+    const { submit } = useScanWarehouseData();
     const [showSearch, setShowSearch] = useState<boolean>(false);
     const { setSearchQuery } = useWarehouseStore();
-    const { setWarehousePreview } = useOtherStore();
     const [disbleButton, setDisableButton] = useState(false);
 
     return (
@@ -48,8 +47,7 @@ export function WareHouseHeader() {
                 onPress={async () => {
                     if (disbleButton) return;
                     setDisableButton(true);
-                    // await scanWarehouse();
-                    setWarehousePreview(true);
+                    await submit();
                     setDisableButton(false);
                 }}
                 style={{ width: "100%" }}

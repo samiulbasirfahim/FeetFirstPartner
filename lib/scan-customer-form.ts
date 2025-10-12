@@ -1,5 +1,4 @@
 import * as ImagePicker from "expo-image-picker";
-import { Image } from "react-native";
 
 export async function ScanCustomerForm() {
     try {

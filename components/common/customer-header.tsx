@@ -2,7 +2,7 @@ import { StyleSheet, View } from "react-native";
 import RNText from "../ui/text";
 import { colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TextInput } from "react-native-gesture-handler";
+import { TextInput } from "react-native";
 import { useCustomerStore } from "@/store/customer";
 
 export function CustomerHeader() {

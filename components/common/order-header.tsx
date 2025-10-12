@@ -1,6 +1,6 @@
 import { colors } from "@/constants/colors";
 import { DateRange, useOrderStore } from "@/store/order";
-import { Filter } from "lucide-react-native";
+import { Camera, Filter } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import {
     Dimensions,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Portal } from "react-native-portalize";
 import RNText from "../ui/text";
+import { RNButton } from "../ui/button";
 
 export function OrderHeader() {
     const [showDropdown, setShowDropdown] = useState(false);
