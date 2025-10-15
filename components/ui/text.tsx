@@ -33,7 +33,7 @@ export default function RNText({
     ...props
 }: Props) {
     return (
-        <Text style={[style, variants[variant]]} {...props}>
+        <Text style={[variants[variant], style]} {...props}>
             {children}
         </Text>
     );

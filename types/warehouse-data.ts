@@ -4,6 +4,6 @@ export type WarehouseData = {
     storageLocation: string;
     supplier: string;
     articleNumber: string;
-    stock: Record<string, number>;
+    stock: { key: string; quantity: number }[];
     status?: "OK" | "Low";
 };

@@ -6,14 +6,15 @@ import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 import { useWarehouseStore } from "@/store/warehouse";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useScanWarehouseData } from "@/lib/useScanWarehouseData";
+import { scanWarehouseData } from "@/lib/scan-warehouse-data";
+import { router, usePathname } from "expo-router";
 
 export function WareHouseHeader() {
+    const pathname = usePathname();
     const { top } = useSafeAreaInsets();
-    const { submit } = useScanWarehouseData();
     const [showSearch, setShowSearch] = useState<boolean>(false);
-    const { setSearchQuery } = useWarehouseStore();
-    const [disbleButton, setDisableButton] = useState(false);
+    const { setSearchQuery, isScanning, setIsScanning, setTmpData } =
+        useWarehouseStore();
 
     return (
         <View style={[styles.container, { paddingTop: top }]}>
@@ -45,14 +46,31 @@ export function WareHouseHeader() {
             </View>
             <RNButton
                 onPress={async () => {
-                    if (disbleButton) return;
-                    setDisableButton(true);
-                    await submit();
-                    setDisableButton(false);
+                    if (isScanning) return;
+                    setIsScanning(true);
+                    router.push("/others/warehouse");
+                    scanWarehouseData()
+                        .then((data) => {
+                            setIsScanning(false);
+                            if (pathname !== "/others/warehouse") {
+                                router.push("/others/warehouse");
+                            }
+                            console.log("Scanned data:", data);
+
+                            setTmpData(data ?? []);
+                        })
+                        .catch((error) => {
+                            setIsScanning(false);
+                            console.error("Error scanning warehouse data:", error);
+                        })
+                        .finally(() => {
+                            setIsScanning(false);
+                        });
                 }}
                 style={{ width: "100%" }}
-                label="Lieferanten scannen"
+                label={isScanning ? "Analyzing..." : "Lieferanten scannen"}
                 icon={Camera}
+                disabled={isScanning}
                 variant="primary"
                 size="md"
             />
@@ -64,7 +82,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: "center",
         borderBottomWidth: 1,
-        backgroundColor: "white",
+        backgroundColor: colors.background,
         padding: 12,
         borderBottomColor: colors.border,
         paddingBottom: 12,

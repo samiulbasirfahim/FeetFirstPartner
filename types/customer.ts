@@ -6,3 +6,16 @@ export type Customer = {
     contact: string;
     orderStatus: "ready" | "pending" | "completed";
 };
+
+export type CustomerFull = {
+    gender: "man" | "woman";
+    name: string;
+    lastName: string;
+    email: string;
+    dateOfBirth: string;
+    healthInsuranceProvider: string;
+    healthInsuranceNumber: string;
+    medicalDiagnosis: string;
+    typeOfInsoles: string;
+    validationOfPrescription: string;
+};

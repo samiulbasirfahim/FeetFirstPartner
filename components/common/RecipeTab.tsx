@@ -3,6 +3,7 @@ import { Camera } from "lucide-react-native";
 import { View, StyleSheet } from "react-native";
 import RNText from "../ui/text";
 import { RNButton } from "../ui/button";
+import { scanCustomerForm } from "@/lib/scan-customer-form";
 
 export function RecipeTab() {
     return (
@@ -23,6 +24,10 @@ export function RecipeTab() {
                 variant="primary"
                 size="md"
                 style={[styles.button, { marginTop: 24, width: "80%" }]}
+                onPress={async () => {
+                    const customer = await scanCustomerForm();
+                    console.log(customer);
+                }}
             />
         </View>
     );

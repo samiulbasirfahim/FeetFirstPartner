@@ -1,11 +1,11 @@
 import * as ImagePicker from "expo-image-picker";
+import { uploadPhotoToCloudinary } from "./cloudinary";
 
 export async function takePicture() {
-    const response = await ImagePicker.launchCameraAsync({
+    const response = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: false,
-        quality: 0.5,
-        base64: true,
+        quality: 1,
     });
 
     if (response.canceled) {
@@ -19,6 +19,7 @@ export async function takePicture() {
         return;
     }
 
-    console.log(response.assets[0].uri);
-    return response.assets[0].base64 ?? "";
+    // return response.assets[0].uri;
+    const image = await uploadPhotoToCloudinary(response.assets[0]);
+    return image;
 }

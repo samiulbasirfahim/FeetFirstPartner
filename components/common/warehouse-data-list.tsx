@@ -1,12 +1,19 @@
 import { colors } from "@/constants/colors";
 import { useWarehouseStore } from "@/store/warehouse";
 import { WarehouseData } from "@/types/warehouse-data";
-import { AlertTriangle, Camera, CheckCircle, Edit } from "lucide-react-native";
+import { AlertTriangle, CheckCircle, Edit } from "lucide-react-native";
 import { FlatList, StyleSheet, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
+import { router } from "expo-router";
 
-const renderItem = ({ item }: { item: WarehouseData }) => {
+const RenderItem = ({
+    item,
+    setTmpData,
+}: {
+    item: WarehouseData;
+    setTmpData: (data: WarehouseData[] | null) => void;
+}) => {
     return (
         <View style={renderItemStyles.container}>
             <View style={renderItemStyles.labelContainer}>
@@ -35,12 +42,12 @@ const renderItem = ({ item }: { item: WarehouseData }) => {
             <RNText variant="caption">Art.-Nr.: {item.articleNumber}</RNText>
 
             <RNText style={{ paddingVertical: 6 }}>Bestand</RNText>
-            {item.stock ? (
+            {item.stock && item.stock.length > 0 ? (
                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-                    {Object.entries(item.stock).map(([size, qty]) => (
-                        <View key={size} style={{ flexDirection: "row", gap: 4 }}>
-                            <RNText style={{ color: colors.muted }}>{size}:</RNText>
-                            <RNText>{qty}</RNText>
+                    {item.stock.map((stockItem) => (
+                        <View key={stockItem.key} style={{ flexDirection: "row", gap: 4 }}>
+                            <RNText style={{ color: colors.muted }}>{stockItem.key}:</RNText>
+                            <RNText>{stockItem.quantity}</RNText>
                         </View>
                     ))}
                 </View>
@@ -50,8 +57,21 @@ const renderItem = ({ item }: { item: WarehouseData }) => {
                 </RNText>
             )}
             <View style={renderItemStyles.buttonContainer}>
-                <RNButton label="Bearbeiten" icon={Edit} size="sm" variant="outline" />
-                <RNButton label="Scannen" icon={Camera} size="sm" variant="primary" />
+                <RNButton
+                    onPress={() => {
+                        setTmpData([item]);
+                        router.push({
+                            pathname: "/others/warehouse",
+                            params: {
+                                isEditing: "true",
+                            },
+                        });
+                    }}
+                    label="Bearbeiten"
+                    icon={Edit}
+                    size="sm"
+                    variant="outline"
+                />
             </View>
         </View>
     );
@@ -78,6 +98,7 @@ const renderItemStyles = StyleSheet.create({
 
 export function WarehouseDataList() {
     const { warehouseData } = useWarehouseStore();
+    const { setTmpData } = useWarehouseStore();
 
     return (
         <View style={{ flex: 1, paddingHorizontal: 12 }}>
@@ -98,7 +119,9 @@ export function WarehouseDataList() {
             ) : (
                 <FlatList
                     data={warehouseData}
-                    renderItem={renderItem}
+                    renderItem={({ item }) => (
+                        <RenderItem setTmpData={setTmpData} item={item} />
+                    )}
                     contentContainerStyle={{ paddingVertical: 12 }}
                     keyExtractor={(item) => item.id?.toString() || item.articleNumber}
                     ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

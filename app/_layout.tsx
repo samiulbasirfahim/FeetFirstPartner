@@ -9,16 +9,16 @@ import * as navigationBar from "expo-navigation-bar";
 export default function RootLayout() {
     navigationBar.setStyle("light");
     return (
-        <KeyboardProvider>
-            <Host>
-                <GestureHandlerRootView>
+        <GestureHandlerRootView>
+            <KeyboardProvider>
+                <Host>
                     <Stack screenOptions={{ headerShown: false, animation: "none" }}>
                         <Stack.Screen name="(tabs)" />
                     </Stack>
                     <StatusBar style="dark" />
                     <RNToaster />
-                </GestureHandlerRootView>
-            </Host>
-        </KeyboardProvider>
+                </Host>
+            </KeyboardProvider>
+        </GestureHandlerRootView>
     );
 }
