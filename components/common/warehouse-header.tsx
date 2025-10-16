@@ -8,6 +8,7 @@ import { useWarehouseStore } from "@/store/warehouse";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { scanWarehouseData } from "@/lib/scan-warehouse-data";
 import { router, usePathname } from "expo-router";
+import { notify } from "@/lib/notify";
 
 export function WareHouseHeader() {
     const pathname = usePathname();
@@ -48,7 +49,6 @@ export function WareHouseHeader() {
                 onPress={async () => {
                     if (isScanning) return;
                     setIsScanning(true);
-                    // router.push("/others/warehouse");
                     scanWarehouseData()
                         .then((data) => {
                             setIsScanning(false);
@@ -57,9 +57,21 @@ export function WareHouseHeader() {
                             }
                             console.log("Scanned data:", data);
 
+                            notify({
+                                type: "success",
+                                title: "Scan erfolgreich",
+                                message: `Erfolgreich ${data?.length ?? 0} Artikel gescannt`,
+                            });
+
                             setTmpData(data ?? []);
                         })
                         .catch((error) => {
+                            notify({
+                                type: "error",
+                                title: "Scan fehlgeschlagen",
+                                message:
+                                    "Fehler beim Scannen der Lagerdaten. Bitte versuchen Sie es erneut.",
+                            });
                             setIsScanning(false);
                             console.error("Error scanning warehouse data:", error);
                         })

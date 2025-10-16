@@ -1,6 +1,7 @@
 import { CustomerFull } from "@/types/customer";
 import { takePicture } from "./imagePicker";
 import { GoogleGenAI, Modality } from "@google/genai";
+import { notify } from "./notify";
 
 const ai = new GoogleGenAI({
     apiKey: process.env.EXPO_PUBLIC_GOOGLE_GENAI_API_KEY,
@@ -13,6 +14,12 @@ export async function scanCustomerForm() {
         console.log("No image URL obtained.");
         return null;
     }
+
+    notify({
+        title: "Bildanalyse...",
+        message: "Bitte warten Sie einige Sekunden",
+        type: "info",
+    });
 
     const model = "gemini-2.5-flash";
 

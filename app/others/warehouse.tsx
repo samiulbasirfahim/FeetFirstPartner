@@ -1,4 +1,5 @@
 import { LoadingSpinner } from "@/components/common/loading";
+import { RNKeyboardAwareScrollView } from "@/components/layout/KeyboardAwareScrollView";
 import RNSafeAreaView from "@/components/layout/SafeAreaView";
 import { RNButton } from "@/components/ui/button";
 import { RNInput } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { FastForward, Plus, Save, SkipForward, X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 export default function Warehouse() {
     const { isEditing = "false" } = useLocalSearchParams();
@@ -70,10 +70,7 @@ export default function Warehouse() {
 
     return (
         <RNSafeAreaView>
-            <KeyboardAwareScrollView
-                keyboardDismissMode="on-drag"
-                contentContainerStyle={{ padding: 16, gap: 6 }}
-            >
+            <RNKeyboardAwareScrollView>
                 <View
                     style={{
                         gap: 6,
@@ -214,7 +211,7 @@ export default function Warehouse() {
                         icon={selected < (tmpData?.length ?? 1) - 1 ? FastForward : Save}
                     />
                 </View>
-            </KeyboardAwareScrollView>
+            </RNKeyboardAwareScrollView>
         </RNSafeAreaView>
     );
 }

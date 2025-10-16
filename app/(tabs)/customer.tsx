@@ -3,6 +3,7 @@ import { CustomerHeader } from "@/components/common/customer-header";
 import { TabIconRenderer } from "@/components/common/tab-bar-components";
 import RNSafeAreaView from "@/components/layout/SafeAreaView";
 import { colors } from "@/constants/colors";
+import { notify } from "@/lib/notify";
 import { router, Tabs } from "expo-router";
 import { Plus, Users } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -31,7 +32,7 @@ export default function CustomerTab() {
                     }
                     style={styles.plusView}
                 >
-                    <Plus color={colors.white} strokeWidth={1} width={40} height={40} />
+                    <Plus color={colors.white} strokeWidth={1.5} width={45} height={45} />
                 </Pressable>
             </RNSafeAreaView>
         </>
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
         right: 20,
         borderWidth: 0,
         borderRadius: "50%",
-        padding: 13,
+        padding: 10,
         backgroundColor: colors.primary,
     },
 });

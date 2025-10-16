@@ -26,8 +26,6 @@ export async function uploadBase64ToCloudinary(
                 cleanBase64 = base64.split(",")[1];
             }
 
-            console.log(cleanBase64);
-
             uploadBase64(cld, {
                 file: cleanBase64,
                 callback: (error, result) => {

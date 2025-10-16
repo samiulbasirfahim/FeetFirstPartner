@@ -5,7 +5,9 @@ import { RNButton } from "@/components/ui/button";
 import RNText from "@/components/ui/text";
 import { colors } from "@/constants/colors";
 import { uploadBase64ToCloudinary } from "@/lib/cloudinary";
-import { base64ToUri } from "@/lib/makeImageUri";
+import { notify } from "@/lib/notify";
+import { useCustomerStore } from "@/store/customer";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { Check } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -14,17 +16,15 @@ export default function CustomerSignature() {
     const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
+    const navigation = useNavigation();
+    const { addCustomer, tmpData, setTmpData } = useCustomerStore();
 
     async function uploadSignature() {
         if (!signature) return;
         setIsLoading(true);
 
         try {
-            console.log("Signature (base64):", signature);
             const uri = await uploadBase64ToCloudinary(signature);
-            console.log("Uploaded image URL:", uri);
-            // const imageUri = await base64ToUri(signature, "signature.jpg");
-            // console.log("Image URI:", imageUri);
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
@@ -81,6 +81,19 @@ export default function CustomerSignature() {
                 disabled={!signature || !isChecked || isLoading}
                 onPress={async () => {
                     await uploadSignature();
+                    notify({
+                        type: "success",
+                        message: "Kunde erfolgreich angelegt",
+                        title: "Erfolg",
+                    });
+                    addCustomer({
+                        dateOfBirth: tmpData?.dateOfBirth!,
+                        contact: tmpData?.email!,
+                        fullName: `${tmpData?.name!} ${tmpData?.lastName!}`,
+                        lastOrderDate: new Date().toISOString(),
+                        orderStatus: "ready",
+                    });
+                    navigation.dispatch(StackActions.pop(2));
                 }}
             />
         </RNSafeAreaView>

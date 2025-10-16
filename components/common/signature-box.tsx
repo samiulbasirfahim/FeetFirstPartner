@@ -1,5 +1,4 @@
 import { colors } from "@/constants/colors";
-import { full } from "@cloudinary/url-gen/qualifiers/fontHinting";
 import React, { useRef, useState } from "react";
 import { StyleSheet, View, Image } from "react-native";
 import SignatureCanvas, {
@@ -43,7 +42,7 @@ export const SignatureBox = ({ signature, setSignature }: Props) => {
                     <>
                         <Image
                             resizeMode="contain"
-                            style={{ width: "100%", height: "100%", flex: 1 }}
+                            style={{ width: "100%", height: 200, flex: 1 }}
                             source={{ uri: signature }}
                         />
 
@@ -79,6 +78,8 @@ export const SignatureBox = ({ signature, setSignature }: Props) => {
                         confirmText={isLoading ? "Processing..." : "Save"}
                         penColor={colors.foreground}
                         backgroundColor={colors.background}
+                        style={{ flex: 1, width: "100%", height: 200 }}
+                        dotSize={3}
                         webviewProps={{
                             cacheEnabled: true,
                             androidLayerType: "hardware",

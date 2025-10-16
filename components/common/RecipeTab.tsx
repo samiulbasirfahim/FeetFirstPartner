@@ -7,10 +7,39 @@ import { scanCustomerForm } from "@/lib/scan-customer-form";
 import { CustomerFull } from "@/types/customer";
 import { useCustomerStore } from "@/store/customer";
 import { router, usePathname } from "expo-router";
+import { notify } from "@/lib/notify";
 
 export function RecipeTab() {
     const { setTmpData, isLoading, setIsLoading } = useCustomerStore();
     const pathname = usePathname();
+
+    async function handleScan() {
+        setIsLoading(true);
+        const customer = (await scanCustomerForm()) as CustomerFull | null;
+        if (customer) {
+            console.log("Scanned customer:", customer);
+            if (pathname !== "/others/customer-form") {
+                router.push({
+                    pathname: "/others/customer-form",
+                });
+            }
+            notify({
+                type: "success",
+                message: "Kundendaten erfolgreich gescannt",
+                title: "Scan erfolgreich",
+            })
+            setTmpData(customer);
+        } else {
+            notify({
+                type: "error",
+                message:
+                    "Fehler beim Scannen des Formulars. Bitte versuchen Sie es erneut.",
+                title: "Scan fehlgeschlagen",
+            });
+        }
+
+        setIsLoading(false);
+    }
 
     return (
         <View style={styles.container}>
@@ -31,20 +60,7 @@ export function RecipeTab() {
                 disabled={isLoading}
                 size="md"
                 style={[styles.button, { marginTop: 24, width: "80%" }]}
-                onPress={async () => {
-                    setIsLoading(true);
-                    const customer = (await scanCustomerForm()) as CustomerFull | null;
-                    if (customer) {
-                        console.log("Scanned customer:", customer);
-                        if (pathname !== "/others/customer-form") {
-                            router.push({
-                                pathname: "/others/customer-form",
-                            });
-                        }
-                        setTmpData(customer);
-                        setIsLoading(false);
-                    }
-                }}
+                onPress={handleScan}
             />
         </View>
     );
