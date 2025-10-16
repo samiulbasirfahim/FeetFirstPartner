@@ -5,6 +5,7 @@ import { RNButton } from "@/components/ui/button";
 import RNText from "@/components/ui/text";
 import { colors } from "@/constants/colors";
 import { uploadBase64ToCloudinary } from "@/lib/cloudinary";
+import { base64ToUri } from "@/lib/makeImageUri";
 import { Check } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -19,8 +20,11 @@ export default function CustomerSignature() {
         setIsLoading(true);
 
         try {
-            const response = await uploadBase64ToCloudinary(signature);
-            console.log("Upload response:", response);
+            console.log("Signature (base64):", signature);
+            const uri = await uploadBase64ToCloudinary(signature);
+            console.log("Uploaded image URL:", uri);
+            // const imageUri = await base64ToUri(signature, "signature.jpg");
+            // console.log("Image URI:", imageUri);
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);

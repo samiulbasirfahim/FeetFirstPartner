@@ -21,12 +21,15 @@ export async function uploadBase64ToCloudinary(
 
     return new Promise((resolve) => {
         try {
-            const fileData = base64.startsWith("data:")
-                ? base64
-                : `data:image/jpeg;base64,${base64}`;
+            let cleanBase64 = base64;
+            if (base64.includes(",")) {
+                cleanBase64 = base64.split(",")[1];
+            }
+
+            console.log(cleanBase64);
 
             uploadBase64(cld, {
-                file: fileData,
+                file: cleanBase64,
                 callback: (error, result) => {
                     if (error) {
                         console.error("Upload error:", error);
