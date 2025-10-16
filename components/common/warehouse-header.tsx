@@ -48,7 +48,7 @@ export function WareHouseHeader() {
                 onPress={async () => {
                     if (isScanning) return;
                     setIsScanning(true);
-                    router.push("/others/warehouse");
+                    // router.push("/others/warehouse");
                     scanWarehouseData()
                         .then((data) => {
                             setIsScanning(false);

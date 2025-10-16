@@ -203,12 +203,14 @@ export default function Warehouse() {
                     <RNButton
                         onPress={handleSkip}
                         variant="outline"
-                        label="SKIP"
+                        label="Überspringen"
                         icon={SkipForward}
                     />
                     <RNButton
                         onPress={handleNext}
-                        label={selected < (tmpData?.length ?? 1) - 1 ? "NEXT" : "SAVE"}
+                        label={
+                            selected < (tmpData?.length ?? 1) - 1 ? "Nächste" : "Speichern"
+                        }
                         icon={selected < (tmpData?.length ?? 1) - 1 ? FastForward : Save}
                     />
                 </View>

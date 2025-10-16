@@ -11,7 +11,7 @@ export async function scanCustomerForm() {
 
     if (!image) {
         console.log("No image URL obtained.");
-        return [];
+        return null;
     }
 
     const model = "gemini-2.5-flash";
@@ -123,7 +123,7 @@ Now extract customer information from this document. Return ONLY the JSON object
 
         if (!response.candidates[0].content) {
             console.error("No content in the first candidate.");
-            return {};
+            return null;
         }
 
         if (
@@ -131,7 +131,7 @@ Now extract customer information from this document. Return ONLY the JSON object
             response.candidates[0].content.parts.length === 0
         ) {
             console.error("No parts in the content of the first candidate.");
-            return {};
+            return null;
         }
 
         if (response.candidates[0].content?.parts[0]?.text) {
@@ -150,6 +150,7 @@ Now extract customer information from this document. Return ONLY the JSON object
         }
     } catch (error) {
         console.error("Error during Google GenAI call:", error);
-        return {};
+        return null;
     }
+    return null;
 }

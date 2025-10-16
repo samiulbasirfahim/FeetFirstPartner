@@ -1,13 +1,32 @@
 import { BackButton } from "@/components/common/back-button";
+import { SignatureBox } from "@/components/common/signature-box";
 import RNSafeAreaView from "@/components/layout/SafeAreaView";
+import { RNButton } from "@/components/ui/button";
 import RNText from "@/components/ui/text";
 import { colors } from "@/constants/colors";
+import { uploadBase64ToCloudinary } from "@/lib/cloudinary";
 import { Check } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 export default function CustomerSignature() {
+    const [isLoading, setIsLoading] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [signature, setSignature] = useState<string | null>(null);
+
+    async function uploadSignature() {
+        if (!signature) return;
+        setIsLoading(true);
+
+        try {
+            const response = await uploadBase64ToCloudinary(signature);
+            console.log("Upload response:", response);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error uploading signature:", error);
+        }
+    }
 
     return (
         <RNSafeAreaView style={{ padding: 16, gap: 12 }}>
@@ -49,6 +68,17 @@ export default function CustomerSignature() {
                     Ich habe die Hinweise gelesen und akzeptiere sie.
                 </RNText>
             </Pressable>
+
+            <SignatureBox signature={signature} setSignature={setSignature} />
+
+            <RNButton
+                label={isLoading ? "Laden..." : "Unterschrift hochladen"}
+                size="lg"
+                disabled={!signature || !isChecked || isLoading}
+                onPress={async () => {
+                    await uploadSignature();
+                }}
+            />
         </RNSafeAreaView>
     );
 }
@@ -66,5 +96,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
+        marginVertical: 4,
+        paddingVertical: 8,
     },
 });

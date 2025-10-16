@@ -25,7 +25,6 @@ export function LoadingSpinner() {
 
 const styles = StyleSheet.create({
     container: {
-        ...StyleSheet.absoluteFillObject,
         backgroundColor: colors.background,
         justifyContent: "center",
         alignItems: "center",
