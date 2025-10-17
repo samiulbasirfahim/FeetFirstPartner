@@ -104,6 +104,9 @@ Now extract all shoe items from this OCR text. Return ONLY the JSON object.
             },
             config: {
                 responseModalities: [Modality.TEXT],
+                thinkingConfig: {
+                    thinkingBudget: 0, 
+                }
             },
         });
 

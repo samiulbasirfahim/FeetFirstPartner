@@ -162,6 +162,7 @@ type OrderState = {
     orders: Order[];
     setOrders: (data: Order[]) => void;
     filterByRange: (range: DateRange) => void;
+    filterByStatus: (status: Order["status"] | "all") => void;
     addOrder: (item: Order) => void;
     updateOrder: (item: Order) => void;
     removeOrder: (id: number) => void;
@@ -173,6 +174,16 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     orders: initialOrders,
 
     setOrders: (data) => set(() => ({ initialOrders: data, orders: data })),
+
+    filterByStatus: (status) => {
+        if (status === "all") {
+            set({ orders: get().initialOrders });
+            return;
+        }
+
+        const filtered = get().initialOrders.filter((o) => o.status === status);
+        set({ orders: filtered });
+    },
 
     filterByRange: (range: DateRange) => {
         if (range === DateRange.All) {

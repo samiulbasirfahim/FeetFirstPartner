@@ -1,61 +1,42 @@
 import { colors } from "@/constants/colors";
 import { DateRange, useOrderStore } from "@/store/order";
-import { Camera, Filter } from "lucide-react-native";
-import { useCallback, useRef, useState } from "react";
-import {
-    Dimensions,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { Portal } from "react-native-portalize";
+import { Filter } from "lucide-react-native";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Dropdown, DropdownOption } from "./dropdown";
 import RNText from "../ui/text";
-import { RNButton } from "../ui/button";
+import type { Order } from "@/types/order";
 
 export function OrderHeader() {
-    const [showDropdown, setShowDropdown] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState("all");
-    const buttonRef = useRef<View | null>(null);
-    const [dropdownPos, setDropdownPos] = useState<{
-        left: number;
-        top: number;
-    } | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<
+        "pending" | "completed" | "ready" | "all"
+    >("all");
 
-    const toggleDropdown = useCallback(() => {
-        if (!showDropdown) {
-            // measure the button position in window coordinates
-            buttonRef.current?.measureInWindow((x, y, width, height) => {
-                const menuMinWidth = 160;
-                const screenWidth = Dimensions.get("window").width;
-                let left = x;
-                if (left + menuMinWidth + 12 > screenWidth) {
-                    left = Math.max(12, screenWidth - menuMinWidth - 12);
-                }
-                const top = y + height + 8;
-                setDropdownPos({ left, top });
-                setShowDropdown(true);
-            });
-        } else {
-            setShowDropdown(false);
-        }
-    }, [showDropdown]);
+    const statusOptions: DropdownOption[] = [
+        { label: "Alle", value: "all", placeHolder: "Alle" },
+        { label: "Ausstehend", value: "pending", placeHolder: "Ausstehend" },
+        {
+            label: "Fertiggestellt",
+            value: "completed",
+            placeHolder: "Fertiggestellt",
+        },
+        { label: "Bereit zur Abholung", value: "ready", placeHolder: "Bereit" },
+    ];
 
-    const filterOptions = [
-        { label: "Alle", value: "all" },
-        { label: "Letzte 3 Tage", value: "last3days" },
-        { label: "Letzte Woche", value: "lastweek" },
-        { label: "Letzte 30 Tage", value: "last30days" },
+    const filterOptions: DropdownOption[] = [
+        { label: "Alle", value: "all", placeHolder: "Alle" },
+        { label: "Letzte 3 Tage", value: "last3days", placeHolder: "3" },
+        { label: "Letzte Woche", value: "lastweek", placeHolder: "7" },
+        { label: "Letzte 30 Tage", value: "last30days", placeHolder: "30" },
     ];
 
     const filterByRange = useOrderStore((s) => s.filterByRange);
+    const filterByStatus = useOrderStore((s) => s.filterByStatus);
 
-    const handleSelect = (value: string) => {
+    const handleFilterSelect = (value: string) => {
         setSelectedFilter(value);
-        setShowDropdown(false);
 
-        // map local value to DateRange enum
         let range = DateRange.All;
         if (value === "last3days") range = DateRange.ThreeDays;
         else if (value === "lastweek") range = DateRange.Week;
@@ -64,57 +45,53 @@ export function OrderHeader() {
         filterByRange(range);
     };
 
+    const handleStatusSelect = (value: string) => {
+        setSelectedStatus(value as "pending" | "completed" | "ready" | "all");
+        filterByStatus(value as Order["status"] | "all");
+    };
+
+    const selectedFilterPlaceHolder = filterOptions.find(
+        (o) => o.value === selectedFilter,
+    )?.placeHolder;
+
+    const selectedStatusPlaceHolder = statusOptions.find(
+        (o) => o.value === selectedStatus,
+    )?.placeHolder;
+
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
                 <RNText variant="title">Aufträge</RNText>
-                <TouchableOpacity
-                    activeOpacity={0.85}
-                    onPress={toggleDropdown}
-                    style={styles.filterButton}
-                    ref={buttonRef}
-                    accessibilityRole="button"
-                    accessibilityLabel="Filter anzeigen"
-                >
-                    <Filter size={16} color={colors.muted} />
-                    <RNText style={styles.filterLabel}>
-                        {filterOptions.find((o) => o.value === selectedFilter)?.label}
-                    </RNText>
-                </TouchableOpacity>
 
-                {showDropdown && dropdownPos && (
-                    <Portal>
-                        <Pressable
-                            style={styles.backdrop}
-                            onPress={() => setShowDropdown(false)}
-                            accessibilityLabel="Schließen"
-                        />
+                <View style={styles.filterGroup}>
+                    <Dropdown
+                        options={statusOptions}
+                        selectedValue={selectedStatus}
+                        onSelect={handleStatusSelect}
+                        trigger={
+                            <View style={styles.filterButton}>
+                                <Filter size={16} color={colors.muted} />
+                                <RNText style={styles.filterLabel}>
+                                    {selectedStatusPlaceHolder}
+                                </RNText>
+                            </View>
+                        }
+                    />
 
-                        <View
-                            style={[
-                                styles.dropdownMenu,
-                                {
-                                    position: "absolute",
-                                    top: dropdownPos.top,
-                                    left: dropdownPos.left,
-                                },
-                            ]}
-                        >
-                            {filterOptions.map((opt) => (
-                                <TouchableOpacity
-                                    key={opt.value}
-                                    onPress={() => handleSelect(opt.value)}
-                                    style={[
-                                        styles.dropdownItem,
-                                        opt.value === selectedFilter && styles.dropdownItemSelected,
-                                    ]}
-                                >
-                                    <RNText variant="primary">{opt.label}</RNText>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </Portal>
-                )}
+                    <Dropdown
+                        options={filterOptions}
+                        selectedValue={selectedFilter}
+                        onSelect={handleFilterSelect}
+                        trigger={
+                            <View style={styles.filterButton}>
+                                <Filter size={16} color={colors.muted} />
+                                <RNText style={styles.filterLabel}>
+                                    {selectedFilterPlaceHolder}
+                                </RNText>
+                            </View>
+                        }
+                    />
+                </View>
             </View>
         </View>
     );
@@ -130,7 +107,10 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: colors.border,
     },
-
+    filterGroup: {
+        flexDirection: "row",
+        gap: 8,
+    },
     filterButton: {
         borderWidth: 1,
         borderColor: colors.border,
@@ -146,40 +126,5 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         fontSize: 14,
         color: colors.foreground,
-    },
-    dropdownMenu: {
-        zIndex: 50,
-        backgroundColor: colors.white,
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: 8,
-        padding: 8,
-        minWidth: 160,
-        elevation: 6,
-        ...Platform.select({
-            ios: {
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.12,
-                shadowRadius: 4,
-            },
-        }),
-    },
-    dropdownItem: {
-        zIndex: 50,
-        paddingVertical: 10,
-        paddingHorizontal: 8,
-    },
-    dropdownItemSelected: {
-        backgroundColor: colors.secondary,
-        borderRadius: 6,
-    },
-    backdrop: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 45,
     },
 });

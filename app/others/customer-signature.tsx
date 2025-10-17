@@ -90,7 +90,7 @@ export default function CustomerSignature() {
                         dateOfBirth: tmpData?.dateOfBirth!,
                         contact: tmpData?.email!,
                         fullName: `${tmpData?.name!} ${tmpData?.lastName!}`,
-                        lastOrderDate: new Date().toISOString(),
+                        lastOrderDate: tmpData?.validationOfPrescription!,
                         orderStatus: "ready",
                     });
                     navigation.dispatch(StackActions.pop(2));

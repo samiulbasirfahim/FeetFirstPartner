@@ -104,6 +104,13 @@ export default function CustomerForm() {
                         label="E-Mail"
                         keyboardType="email-address"
                         defaultValue={tmpData?.email}
+                        onChangeText={(text) => {
+                            if (tmpData)
+                                setTmpData({
+                                    ...tmpData,
+                                    email: text,
+                                });
+                        }}
                         autoCapitalize="none"
                         autoCorrect={false}
                         textContentType="emailAddress"

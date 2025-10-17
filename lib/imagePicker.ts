@@ -4,7 +4,7 @@ export async function takePicture() {
     const response = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
         allowsEditing: false,
-        quality: 0.5,
+        quality: 1,
         base64: true,
     });
 

@@ -120,6 +120,9 @@ Now extract customer information from this document. Return ONLY the JSON object
             },
             config: {
                 responseModalities: [Modality.TEXT],
+                thinkingConfig: {
+                    thinkingBudget: 0,
+                },
             },
         });
 

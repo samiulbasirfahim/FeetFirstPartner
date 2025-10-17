@@ -43,8 +43,7 @@ export function CustomerDataList() {
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                     <ShoppingBag size={16} color={colors.muted} />
                     <RNText style={{ color: colors.muted }}>
-                        Letzer Auftrag:
-                        {item.lastOrderDate}
+                        Letzer Auftrag: {item.lastOrderDate}
                     </RNText>
                 </View>
 
