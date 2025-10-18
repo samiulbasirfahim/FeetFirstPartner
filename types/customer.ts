@@ -8,6 +8,7 @@ export type Customer = {
 };
 
 export type CustomerFull = {
+    id: number;
     gender: "man" | "woman";
     name: string;
     lastName: string;

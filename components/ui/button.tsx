@@ -66,6 +66,22 @@ const variants: Variants = {
         },
     },
 
+    green: {
+        text: {
+            fontSize: 18,
+            color: colors.background,
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+            backgroundColor: colors.success,
+            padding: 10,
+            borderRadius: 10,
+        },
+    },
+
     primary: {
         text: {
             fontSize: 18,
@@ -184,9 +200,11 @@ export function RNButton({
             {...props}
         >
             {Icon && <Icon color={iconColor} size={iconSize} />}
-            {<RNText variant="base" style={[textStyle, props.textStyle]}>
-                {label}
-            </RNText> }
+            {
+                <RNText variant="base" style={[textStyle, props.textStyle]}>
+                    {label}
+                </RNText>
+            }
         </TouchableOpacity>
     );
 }

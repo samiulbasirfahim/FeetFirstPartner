@@ -1,14 +1,12 @@
 import { QRCodeResponse } from "@/lib/handleQrCode";
 import { Order } from "@/types/order";
 import { create } from "zustand";
-// small helper to subtract days without adding date-fns dependency
 const subDays = (date: Date, days: number) => {
     const d = new Date(date);
     d.setDate(d.getDate() - days);
     return d;
 };
 
-// create sample createdAt values relative to now
 const now = new Date();
 
 export const initialOrders: Order[] = [];
@@ -33,6 +31,7 @@ type OrderState = {
     removeOrder: (id: number) => void;
     tmpData: QRCodeResponse | null;
     setTmpData: (data: QRCodeResponse | null) => void;
+    getOrderById: (id: number) => Order | undefined;
 };
 
 export const useOrderStore = create<OrderState>((set, get) => ({
@@ -112,4 +111,6 @@ export const useOrderStore = create<OrderState>((set, get) => ({
         );
         set({ orders: filtered, searchQuery: query });
     },
+
+    getOrderById: (id) => get().initialOrders.find((o) => o.id === id),
 }));

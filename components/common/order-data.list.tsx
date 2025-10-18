@@ -23,6 +23,7 @@ export function OrderDataList() {
                     <RNText style={{ fontWeight: "500", fontSize: 16 }}>
                         Auftrag {item.orderNumber}
                     </RNText>
+
                     <View style={{ flexShrink: 0 }}>
                         {item.status === "ready" && (
                             <RNButton label="Abholbereit" variant="primary" size="xs" />
@@ -33,7 +34,7 @@ export function OrderDataList() {
                         )}
 
                         {item.status === "completed" && (
-                            <RNButton label="Abgeschlossen" variant="outline" size="xs" />
+                            <RNButton label="Abgeschlossen" variant="green" size="xs" />
                         )}
                     </View>
                 </View>

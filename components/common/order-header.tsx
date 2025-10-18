@@ -1,6 +1,6 @@
 import { colors } from "@/constants/colors";
 import { DateRange, useOrderStore } from "@/store/order";
-import { Filter } from "lucide-react-native";
+import { Filter, ListStart } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown, DropdownOption } from "./dropdown";
@@ -70,7 +70,7 @@ export function OrderHeader() {
                         onSelect={handleStatusSelect}
                         trigger={
                             <View style={styles.filterButton}>
-                                <Filter size={16} color={colors.muted} />
+                                <ListStart size={16} color={colors.muted} />
                                 <RNText style={styles.filterLabel}>
                                     {selectedStatusPlaceHolder}
                                 </RNText>

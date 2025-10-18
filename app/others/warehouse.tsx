@@ -3,6 +3,7 @@ import { RNKeyboardAwareScrollView } from "@/components/layout/KeyboardAwareScro
 import RNSafeAreaView from "@/components/layout/SafeAreaView";
 import { RNButton } from "@/components/ui/button";
 import { RNInput } from "@/components/ui/input";
+import RNText from "@/components/ui/text";
 import { colors } from "@/constants/colors";
 import { useWarehouseStore } from "@/store/warehouse";
 import { WarehouseData } from "@/types/warehouse-data";
@@ -71,6 +72,12 @@ export default function Warehouse() {
     return (
         <RNSafeAreaView>
             <RNKeyboardAwareScrollView>
+                <RNText
+                    style={{ textAlign: "center", marginVertical: 6, fontSize: 18 }}
+                    variant="body"
+                >
+                    {selected + 1}/{tmpData.length}
+                </RNText>
                 <View
                     style={{
                         gap: 6,

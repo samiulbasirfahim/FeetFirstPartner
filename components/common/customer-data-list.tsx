@@ -31,7 +31,7 @@ export function CustomerDataList() {
                         )}
 
                         {item.orderStatus === "completed" && (
-                            <RNButton label="Abgeschlossen" variant="outline" size="xs" />
+                            <RNButton label="Abgeschlossen" variant="green" size="xs" />
                         )}
                     </View>
                 </View>

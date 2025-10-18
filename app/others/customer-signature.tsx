@@ -17,7 +17,8 @@ export default function CustomerSignature() {
     const [isChecked, setIsChecked] = useState(false);
     const [signature, setSignature] = useState<string | null>(null);
     const navigation = useNavigation();
-    const { addCustomer, tmpData, setTmpData } = useCustomerStore();
+    const { addCustomer, addCustomerFullData, tmpData, setTmpData } =
+        useCustomerStore();
 
     async function uploadSignature() {
         if (!signature) return;
@@ -86,6 +87,8 @@ export default function CustomerSignature() {
                         message: "Kunde erfolgreich angelegt",
                         title: "Erfolg",
                     });
+
+                    addCustomerFullData(tmpData!);
                     addCustomer({
                         dateOfBirth: tmpData?.dateOfBirth!,
                         contact: tmpData?.email!,

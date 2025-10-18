@@ -1,11 +1,34 @@
 import { Customer, CustomerFull } from "@/types/customer";
 import { create } from "zustand";
 
-const qr = {
-    "customer_id": 1,
-    "order_id": 101,
-}
-
+const initialCustomerFullData: CustomerFull[] = [
+    {
+        id: 1,
+        gender: "man",
+        name: "Aiden",
+        lastName: "Brooks",
+        email: "aiden.brooks@example.com",
+        dateOfBirth: "1987-03-12",
+        healthInsuranceProvider: "BlueCross",
+        healthInsuranceNumber: "H123456789",
+        medicalDiagnosis: "Flat feet",
+        typeOfInsoles: "Custom orthotic",
+        validationOfPrescription: "2025-10-10",
+    },
+    {
+        id: 2,
+        gender: "woman",
+        name: "Sophia",
+        lastName: "Martinez",
+        email: "sophia.martinez@example.com",
+        dateOfBirth: "1992-08-24",
+        healthInsuranceProvider: "UnitedHealth",
+        healthInsuranceNumber: "H987654321",
+        medicalDiagnosis: "Plantar fasciitis",
+        typeOfInsoles: "Gel orthotic",
+        validationOfPrescription: "2025-09-29",
+    },
+];
 
 const initialCustomerData: Customer[] = [
     {
@@ -32,6 +55,7 @@ type CustomerState = {
     initialCustomers: Customer[];
     customers: Customer[];
     setCustomers: (data: Customer[]) => void;
+    getCustomerById: (id: number) => Customer | undefined;
     addCustomer: (item: Customer) => void;
     updateCustomer: (item: Customer) => void;
     removeCustomer: (id: number) => void;
@@ -40,6 +64,10 @@ type CustomerState = {
     tmpData: CustomerFull | null;
     setIsLoading: (loading: boolean) => void;
     setTmpData: (data: CustomerFull | null) => void;
+
+    customerFullData: CustomerFull[];
+    addCustomerFullData: (data: CustomerFull) => void;
+    getCustomerFullDataById: (id: number) => CustomerFull | undefined;
 };
 
 export const useCustomerStore = create<CustomerState>((set, get) => ({
@@ -49,11 +77,27 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
     isLoading: false,
     tmpData: null,
 
+    customerFullData: initialCustomerFullData,
+
+    addCustomerFullData: (data: CustomerFull) =>
+        set((state) => ({
+            customerFullData: [
+                ...state.customerFullData,
+                { ...data, id: data.id ?? Date.now() },
+            ],
+        })),
+
+    getCustomerFullDataById: (id: number) =>
+        get().customerFullData.find((c) => c.id === id),
+
     setIsLoading: (loading: boolean) => set(() => ({ isLoading: loading })),
     setTmpData: (data: CustomerFull | null) => set(() => ({ tmpData: data })),
 
     setCustomers: (data: Customer[]) =>
         set(() => ({ initialCustomers: data, customers: data })),
+
+    getCustomerById: (id: number) =>
+        get().initialCustomers.find((c) => c.id === id),
 
     addCustomer: (item: Customer) =>
         set((state) => {

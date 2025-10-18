@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
+        backgroundColor: colors.background,
     },
     cameraView: {
         borderRadius: 12,
