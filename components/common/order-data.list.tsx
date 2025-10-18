@@ -1,23 +1,19 @@
 import { colors } from "@/constants/colors";
 import { useOrderStore } from "@/store/order";
-import {
-    Calendar,
-    Camera,
-    DollarSign,
-    EuroIcon,
-    ShoppingBag,
-    Users2,
-} from "lucide-react-native";
+import { Camera, EuroIcon } from "lucide-react-native";
 import { FlatList, StyleSheet, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
+import { router } from "expo-router";
 
 export function OrderDataList() {
     const { orders } = useOrderStore();
 
-    console.log(orders);
-    const handleCreateOrder = () => {
-        console.log(orders);
+    const handleCreateOrder = (status: "pending" | "completed" | "ready") => {
+        router.push({
+            pathname: "/others/qr-code-scanner",
+            params: { status },
+        });
     };
 
     const renderItem = ({ item }: { item: (typeof orders)[0] }) => {
@@ -60,17 +56,58 @@ export function OrderDataList() {
         );
     };
 
+    const HeaderComponent = () => {
+        return (
+            <View style={{ gap: 6, paddingBottom: 12 }}>
+                <RNButton
+                    onPress={() => handleCreateOrder("ready")}
+                    icon={Camera}
+                    label="Einlage in Fertigung"
+                    size="md"
+                />
+                <RNButton
+                    onPress={() => handleCreateOrder("completed")}
+                    style={{ backgroundColor: colors.accent }}
+                    variant="primary"
+                    icon={Camera}
+                    label="Einlage abholbereit"
+                    size="md"
+                />
+                <RNButton
+                    onPress={() => handleCreateOrder("pending")}
+                    variant="outline"
+                    icon={Camera}
+                    label="Einlage ausführen"
+                    size="md"
+                />
+            </View>
+        );
+    };
+
     if (!orders || orders.length === 0) {
         return (
-            <View style={[styles.container, styles.emptyContainer]}>
-                <RNText style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}>
-                    Keine Aufträge gefunden
-                </RNText>
-                <RNText style={{ color: colors.muted, marginBottom: 16 }}>
-                    Erstellen Sie einen neuen Auftrag, um loszulegen.
-                </RNText>
-                <View style={styles.buttonContainer}>
-                    <RNButton label="Create Order" onPress={handleCreateOrder} />
+            <View style={{ ...styles.container, paddingVertical: 12 }}>
+                <HeaderComponent />
+                <View style={[styles.container, styles.emptyContainer]}>
+                    <RNText
+                        style={{
+                            fontSize: 18,
+                            fontWeight: "600",
+                            marginBottom: 8,
+                            textAlign: "center",
+                        }}
+                    >
+                        Keine Aufträge gefunden
+                    </RNText>
+                    <RNText
+                        style={{
+                            color: colors.muted,
+                            marginBottom: 16,
+                            textAlign: "center",
+                        }}
+                    >
+                        Erstellen Sie einen neuen Auftrag, um loszulegen.
+                    </RNText>
                 </View>
             </View>
         );
@@ -79,26 +116,7 @@ export function OrderDataList() {
     return (
         <View style={styles.container}>
             <FlatList
-                ListHeaderComponent={() => {
-                    return (
-                        <View style={{ gap: 6, paddingBottom: 12 }}>
-                            <RNButton icon={Camera} label="Einlage in Fertigung" size="md" />
-                            <RNButton
-                                style={{ backgroundColor: colors.accent }}
-                                variant="primary"
-                                icon={Camera}
-                                label="Einlage abholbereit"
-                                size="md"
-                            />
-                            <RNButton
-                                variant="outline"
-                                icon={Camera}
-                                label="Einlage ausführen"
-                                size="md"
-                            />
-                        </View>
-                    );
-                }}
+                ListHeaderComponent={HeaderComponent}
                 data={orders}
                 contentContainerStyle={{ paddingVertical: 12 }}
                 keyExtractor={(item) => item.id?.toString() || Math.random().toString()}

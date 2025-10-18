@@ -9,10 +9,20 @@ type Props = {
 export function notify({ title, message, type }: Props) {
     switch (type) {
         case "success":
-            toast.success(message, { description: title });
+            toast.success(message, {
+                description: title,
+                style: {
+                    backgroundColor: "#e6ffed",
+                },
+            });
             break;
         case "error":
-            toast.error(message, { description: title });
+            toast.error(message, {
+                description: title,
+                style: {
+                    backgroundColor: "#ffeded",
+                },
+            });
             break;
         case "info":
             toast(message, { description: title });

@@ -78,7 +78,7 @@ export const SignatureBox = ({ signature, setSignature }: Props) => {
                         confirmText={isLoading ? "Processing..." : "Save"}
                         penColor={colors.foreground}
                         backgroundColor={colors.background}
-                        style={{ flex: 1, width: "100%", height: 200 }}
+                        style={{ width: "100%", height: 200, overflow: "hidden" }}
                         dotSize={3}
                         webviewProps={{
                             cacheEnabled: true,
