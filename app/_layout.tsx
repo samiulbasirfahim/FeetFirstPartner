@@ -5,9 +5,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { RNToaster } from "@/components/ui/toaster";
 import { StatusBar } from "expo-status-bar";
 import * as navigationBar from "expo-navigation-bar";
+import { Platform } from "react-native";
 
 export default function RootLayout() {
-    navigationBar.setStyle("light");
+    if (Platform.OS === "android") navigationBar.setStyle("light");
     return (
         <GestureHandlerRootView>
             <KeyboardProvider>
