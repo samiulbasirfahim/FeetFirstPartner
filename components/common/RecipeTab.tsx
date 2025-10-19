@@ -31,30 +31,43 @@ export function RecipeTab() {
         }
 
         setIsLoading(true);
-        const customer = (await scanCustomerForm()) as CustomerFull | null;
-        if (customer) {
-            console.log("Scanned customer:", customer);
-            if (pathname !== "/others/customer-form") {
-                router.push({
-                    pathname: "/others/customer-form",
-                });
-            }
-            notify({
-                type: "success",
-                message: "Kundendaten erfolgreich gescannt",
-                title: "Scan erfolgreich",
-            });
-            setTmpData(customer);
-        } else {
-            notify({
-                type: "error",
-                message:
-                    "Fehler beim Scannen des Formulars. Bitte versuchen Sie es erneut.",
-                title: "Scan fehlgeschlagen",
-            });
-        }
+        scanCustomerForm()
+            .then((customer) => {
+                if (customer) {
+                    console.log("Scanned customer:", customer);
+                    if (pathname !== "/others/customer-form") {
+                        router.push({
+                            pathname: "/others/customer-form",
+                        });
+                    }
+                    notify({
+                        type: "success",
+                        message: "Kundendaten erfolgreich gescannt",
+                        title: "Scan erfolgreich",
+                    });
+                    setTmpData(customer);
+                } else {
+                    notify({
+                        type: "error",
+                        message:
+                            "Fehler beim Scannen des Formulars. Bitte versuchen Sie es erneut.",
+                        title: "Scan fehlgeschlagen",
+                    });
+                }
 
-        setIsLoading(false);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                notify({
+                    type: "error",
+                    message:
+                        "Fehler beim Scannen des Formulars. Bitte versuchen Sie es erneut.",
+                    title: "Scan fehlgeschlagen",
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }
 
     return (

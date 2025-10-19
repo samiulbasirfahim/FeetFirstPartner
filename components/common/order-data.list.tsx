@@ -5,11 +5,18 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 import { router } from "expo-router";
+import { useCameraPermissions } from "expo-camera";
 
 export function OrderDataList() {
     const { orders } = useOrderStore();
+    const [permission, requestPermission] = useCameraPermissions();
 
     const handleCreateOrder = (status: "pending" | "completed" | "ready") => {
+        if (permission?.granted === false) {
+            requestPermission();
+            return;
+        }
+
         router.push({
             pathname: "/others/qr-code-scanner",
             params: { status },

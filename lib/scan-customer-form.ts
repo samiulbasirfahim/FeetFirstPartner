@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({
     apiKey: process.env.EXPO_PUBLIC_GOOGLE_GENAI_API_KEY,
 });
 
-export async function scanCustomerForm() {
+export async function scanCustomerForm(): Promise<CustomerFull | null> {
     const image = await takePicture();
 
     if (!image) {
@@ -128,7 +128,7 @@ Now extract customer information from this document. Return ONLY the JSON object
 
         if (!response.candidates || response.candidates.length === 0) {
             console.error("No candidates returned from Google GenAI.");
-            return {};
+            return null;
         }
 
         if (!response.candidates[0].content) {
