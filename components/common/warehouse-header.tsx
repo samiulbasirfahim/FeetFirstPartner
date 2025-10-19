@@ -9,13 +9,61 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { scanWarehouseData } from "@/lib/scan-warehouse-data";
 import { router, usePathname } from "expo-router";
 import { notify } from "@/lib/notify";
+import * as ImagePicker from "expo-image-picker";
 
 export function WareHouseHeader() {
+    const [status, requestPermission] = ImagePicker.useCameraPermissions();
     const pathname = usePathname();
     const { top } = useSafeAreaInsets();
     const [showSearch, setShowSearch] = useState<boolean>(false);
     const { setSearchQuery, isScanning, setIsScanning, setTmpData } =
         useWarehouseStore();
+
+    const handleScanPicture = async () => {
+        if (status?.granted === false) {
+            const permission = await requestPermission();
+            if (!permission.granted) {
+                notify({
+                    type: "error",
+                    title: "Berechtigung verweigert",
+                    message:
+                        "Kameraberechtigung ist erforderlich, um Artikel zu scannen.",
+                });
+                return;
+            }
+        }
+        if (isScanning) return;
+        setIsScanning(true);
+        scanWarehouseData()
+            .then((data) => {
+                setIsScanning(false);
+                if (pathname !== "/others/warehouse") {
+                    router.push("/others/warehouse");
+                }
+                console.log("Scanned data:", data);
+
+                notify({
+                    type: "success",
+                    title: "Scan erfolgreich",
+                    message: `Erfolgreich ${data?.length ?? 0} Artikel gescannt`,
+                });
+
+                setTmpData(data ?? []);
+            })
+            .catch((error) => {
+                notify({
+                    type: "error",
+                    title: "Scan fehlgeschlagen",
+                    message:
+                        "Fehler beim Scannen der Lagerdaten. Bitte versuchen Sie es erneut.",
+                });
+                setIsScanning(false);
+                console.error("Error scanning warehouse data:", error);
+            })
+            .finally(() => {
+                setIsScanning(false);
+            });
+    };
 
     return (
         <View style={[styles.container, { paddingTop: top }]}>
@@ -46,39 +94,7 @@ export function WareHouseHeader() {
                 </TouchableOpacity>
             </View>
             <RNButton
-                onPress={async () => {
-                    if (isScanning) return;
-                    setIsScanning(true);
-                    scanWarehouseData()
-                        .then((data) => {
-                            setIsScanning(false);
-                            if (pathname !== "/others/warehouse") {
-                                router.push("/others/warehouse");
-                            }
-                            console.log("Scanned data:", data);
-
-                            notify({
-                                type: "success",
-                                title: "Scan erfolgreich",
-                                message: `Erfolgreich ${data?.length ?? 0} Artikel gescannt`,
-                            });
-
-                            setTmpData(data ?? []);
-                        })
-                        .catch((error) => {
-                            notify({
-                                type: "error",
-                                title: "Scan fehlgeschlagen",
-                                message:
-                                    "Fehler beim Scannen der Lagerdaten. Bitte versuchen Sie es erneut.",
-                            });
-                            setIsScanning(false);
-                            console.error("Error scanning warehouse data:", error);
-                        })
-                        .finally(() => {
-                            setIsScanning(false);
-                        });
-                }}
+                onPress={handleScanPicture}
                 style={{ width: "100%" }}
                 label={isScanning ? "Analyzing..." : "Lieferanten scannen"}
                 icon={Camera}

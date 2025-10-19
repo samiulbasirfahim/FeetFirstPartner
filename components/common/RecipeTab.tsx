@@ -8,12 +8,28 @@ import { CustomerFull } from "@/types/customer";
 import { useCustomerStore } from "@/store/customer";
 import { router, usePathname } from "expo-router";
 import { notify } from "@/lib/notify";
+import * as ImagePicker from "expo-image-picker";
 
 export function RecipeTab() {
+    const [status, requestPermission] = ImagePicker.useCameraPermissions();
+
     const { setTmpData, isLoading, setIsLoading } = useCustomerStore();
     const pathname = usePathname();
 
     async function handleScan() {
+        if (status?.granted === false) {
+            const permission = await requestPermission();
+            if (!permission.granted) {
+                notify({
+                    type: "error",
+                    title: "Berechtigung verweigert",
+                    message:
+                        "Kameraberechtigung ist erforderlich, um Artikel zu scannen.",
+                });
+                return;
+            }
+        }
+
         setIsLoading(true);
         const customer = (await scanCustomerForm()) as CustomerFull | null;
         if (customer) {
@@ -27,7 +43,7 @@ export function RecipeTab() {
                 type: "success",
                 message: "Kundendaten erfolgreich gescannt",
                 title: "Scan erfolgreich",
-            })
+            });
             setTmpData(customer);
         } else {
             notify({
