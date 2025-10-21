@@ -27,7 +27,7 @@ export default function CustomerTab() {
                     onPress={() =>
                         router.push({
                             pathname: "/(tabs)/scan",
-                            params: { tab: "recipe" },
+                            params: { tab: "recipe", uniqueId: Date.now().toString() },
                         })
                     }
                     style={styles.plusView}

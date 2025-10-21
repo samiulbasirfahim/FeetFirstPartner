@@ -9,13 +9,13 @@ import { useEffect, useState } from "react";
 
 export default function ScanTab() {
     const [activeTab, setActiveTab] = useState<"orders" | "recipe">("orders");
-    const { tab } = useLocalSearchParams();
+    const { tab, uniqueId } = useLocalSearchParams();
 
     useEffect(() => {
         if (tab === "orders" || tab === "recipe") {
             setActiveTab(tab);
         }
-    }, [tab]);
+    }, [tab, uniqueId]);
 
     return (
         <>
