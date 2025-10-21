@@ -21,7 +21,7 @@ export async function scanCustomerForm(): Promise<CustomerFull | null> {
         type: "info",
     });
 
-    const model = "gemini-2.5-flash";
+    const model = "gemini-2.0-flash";
 
     const prompt = `
 You are an expert at extracting customer and prescription data from medical documents, prescriptions, and patient forms.
@@ -29,82 +29,147 @@ These documents are in German or Italian.
 
 CRITICAL RULES:
 1. Return ONLY a valid JSON object with the structure below. No markdown, no explanations, no extra text.
-2. Extract ALL available customer information from the document.
-3. Return the object directly - do NOT wrap it in an "items" array or any other container.
+2. Extract ALL available information from the document.
+3. Return the object directly - do NOT wrap it in an array or container.
 
 REQUIRED OUTPUT STRUCTURE:
 {
   "gender": "man" | "woman",
-  "name": "first name",
+  "firstName": "first name",
   "lastName": "last name",
   "email": "email address",
-  "dateOfBirth": "YYYY-MM-DD format",
+  "address": "full address",
+  "dateOfBirth": "YYYY-MM-DD",
+  "insuranceNumber": "Versichertennummer",
+  "statusCode": "Status code",
+  "dateOfPrescription": "YYYY-MM-DD",
   "healthInsuranceProvider": "insurance company name",
-  "healthInsuranceNumber": "insurance policy/member number",
-  "medicalDiagnosis": "diagnosis or medical condition",
-  "typeOfInsoles": "type/description of prescribed insoles",
-  "validationOfPrescription": "prescription validation date or reference"
+  "healthInsuranceProviderId": "Kostenträgerkennung",
+  "clinicId": "Betriebsstätten-Nr / BSNR",
+  "prescribingDoctor": "doctor name with title",
+  "clinicAddress": "clinic/practice address",
+  "physicianId": "Arzt-Nr / LANR",
+  "medicalDiagnosis": "diagnosis description",
+  "typeOfPrescription": "prescription/insole description"
 }
 
 FIELD EXTRACTION RULES:
+
+PATIENTENDATEN (PATIENT DATA):
 
 Gender:
 - Look for: "Herr"/"Mr" = "man", "Frau"/"Mrs"/"Ms" = "woman"
 - German: "männlich" = "man", "weiblich" = "woman"
 - Italian: "uomo"/"maschio" = "man", "donna"/"femmina" = "woman"
-- If not found, use: ""
+- Default: ""
 
-Name & Last Name:
-- Extract from patient/customer name fields
-- Look for: "Name", "Vorname", "Nachname", "Nome", "Cognome", "Patient"
-- If not found, use: ""
+First Name (Vorname):
+- Look for: "Vorname", "Name", "Nome", "First Name"
+- Extract only the first/given name
+- Default: ""
+
+Last Name (Nachname):
+- Look for: "Nachname", "Familienname", "Cognome", "Last Name", "Surname"
+- Extract family name
+- Default: ""
 
 Email:
-- Extract email address if present
-- Look for standard email format: user@domain.com
-- If not found, use: ""
+- Extract email address if present (user@domain.com format)
+- Default: ""
 
-Date of Birth:
-- Convert to YYYY-MM-DD format (e.g., "1985-03-15")
+Address (Adresse):
+- Look for: "Adresse", "Straße", "Address", "Indirizzo"
+- Extract full address including street, number, postal code, city
+- Example format: "Daitenhausener Str. 10, 85386 Eching"
+- Default: ""
+
+Date of Birth (Geburtsdatum):
 - Look for: "Geburtsdatum", "Geb.", "Data di nascita", "DOB"
-- Accept formats: DD.MM.YYYY, DD/MM/YYYY, YYYY-MM-DD
-- If not found, use: ""
+- Accept formats: DD.MM.YY, DD.MM.YYYY, DD/MM/YYYY
+- ALWAYS convert to YYYY-MM-DD format
+- Example: "22.07.64" → "1964-07-22" or "2064-07-22" (use context, usually 1900s)
+- Default: ""
 
-Health Insurance Provider:
-- Look for: "Krankenkasse", "Versicherung", "Assicurazione sanitaria", "Insurance"
-- Extract the insurance company name
-- If not found, use: ""
+Insurance Number (Versichertennummer):
+- Look for: "Versichertennummer", "Vers.-Nr.", "Insurance Number"
+- Example: "Z411008593"
+- Default: ""
 
-Health Insurance Number:
-- Look for: "Versicherungsnummer", "Mitgliedsnummer", "Numero di assicurazione"
-- Extract policy or member ID number
-- If not found, use: ""
+Status Code (Status):
+- Look for: "Status", "Status Code"
+- Example: "100000"
+- Default: ""
 
-Medical Diagnosis:
-- Look for: "Diagnose", "Diagnosi", "Diagnosis", "ICD", "Befund"
-- Extract the medical condition or diagnosis description
-- If not found, use: ""
+Date of Prescription (Datum der Verordnung):
+- Look for: "Datum der Verordnung", "Verordnungsdatum", "Rezeptdatum", "Prescription Date"
+- Accept formats: DD.MM.YY, DD.MM.YYYY
+- ALWAYS convert to YYYY-MM-DD format
+- Example: "07.10.25" → "2025-10-07"
+- Default: ""
 
-Type of Insoles:
-- Look for: "Einlagen", "Schuheinlagen", "Plantari", "Insoles", "Versorgung"
-- Extract the type/description of prescribed orthopedic insoles
-- Common types: "sensomotorische Einlagen", "orthopädische Einlagen", "Sporteinlagen"
-- If not found, use: ""
+VERSICHERUNGSDATEN (INSURANCE DATA):
 
-Validation of Prescription:
-- Look for: "Gültig bis", "Verordnungsdatum", "Rezeptdatum", "Valido fino al", "Valid until"
-- Extract prescription date or validation date
-- Convert to YYYY-MM-DD format if possible
-- If not found, use: ""
+Health Insurance Provider (Kostenträger / Krankenkasse):
+- Look for: "Kostenträger", "Krankenkasse", "Versicherung", "Insurance"
+- Examples: "BARMER", "AOK Bayern", "TK", "DAK"
+- Default: ""
 
-IMPORTANT: 
+Health Insurance Provider ID (Kostenträgerkennung):
+- Look for: "Kostenträgerkennung", "IK-Nummer", "Provider ID"
+- Example: "108380007"
+- 9-digit number
+- Default: ""
+
+Clinic ID (Betriebsstätten-Nr / BSNR):
+- Look for: "Betriebsstätten-Nr", "BSNR", "Clinic ID"
+- Example: "644417400"
+- 9-digit number
+- Default: ""
+
+Prescribing Doctor (Verordnender Arzt):
+- Look for: "Verordnender Arzt", "Arzt", "Doctor", "Dr."
+- Include title and full name
+- Example: "Dr. med. Alexander Dittmar"
+- Default: ""
+
+Clinic Address (Praxisadresse):
+- Look for: "Praxisadresse", "Clinic Address", "Practice Address"
+- Extract full address
+- Example: "Terminalstraße Mitte 18, 85356 München Flughafen"
+- Default: ""
+
+Physician ID (Arzt-Nr / LANR):
+- Look for: "Arzt-Nr", "LANR", "Physician ID", "Arztnummer"
+- Example: "732269410"
+- 9-digit number
+- Default: ""
+
+⚕️ MEDIZINISCHE DATEN (MEDICAL DATA):
+
+Medical Diagnosis (Ärztliche Diagnose):
+- Look for: "Diagnose", "Ärztliche Diagnose", "Diagnosis", "ICD", "Befund"
+- Extract complete diagnosis text
+- Example: "Knick-Senk-Spreizfuß bds., Achillodynie li."
+- Common terms: "bds." (beidseitig/bilateral), "li." (links/left), "re." (rechts/right)
+- Default: ""
+
+Type of Prescription (Art der Verordnung / Einlage):
+- Look for: "Art der Verordnung", "Einlage", "Verordnung", "Type of Prescription"
+- Extract complete prescription description including quantity and specifications
+- Example: "2 Paar Weichpolsterbettungseinlagen + Fersenweichpolsterung 2x aus hygienischen Gründen nach Formabdruck; Quer & Längsgewölbeunterstützung bds."
+- Include details about: quantity (Paar), type (Weichpolsterung, etc.), reasons, specifications
+- Default: ""
+
+IMPORTANT NOTES:
 - All fields must be strings
-- Use empty string "" if information is not found
-- Do NOT use null or undefined
-- Do NOT wrap the output in markdown code blocks
+- Use empty string "" if information is not found - NEVER use null or undefined
+- For dates: ALWAYS convert to YYYY-MM-DD format regardless of input format
+- For 2-digit years: use context (prescription dates are recent = 20xx, birth dates are older = 19xx)
+- Extract complete text for diagnosis and prescription fields
+- Do NOT wrap output in markdown code blocks
 - Return ONLY the raw JSON object
 
-Now extract customer information from this document. Return ONLY the JSON object.
+Now extract all information from this document. Return ONLY the JSON object.
 `;
 
     const parts = [
@@ -120,9 +185,6 @@ Now extract customer information from this document. Return ONLY the JSON object
             },
             config: {
                 responseModalities: [Modality.TEXT],
-                thinkingConfig: {
-                    thinkingBudget: 0,
-                },
             },
         });
 
@@ -147,15 +209,27 @@ Now extract customer information from this document. Return ONLY the JSON object
         if (response.candidates[0].content?.parts[0]?.text) {
             const text = response.candidates[0].content.parts[0].text;
 
+            console.log("===== RAW RESPONSE =====");
+            console.log(text);
+            console.log("========================");
+
             try {
+                // Remove markdown code blocks if present
                 let cleaned = text
                     .replace(/^```(?:json)?\n?/, "")
-                    .replace(/\n?```$/, "");
+                    .replace(/\n?```$/, "")
+                    .trim();
+
                 const data = JSON.parse(cleaned);
-                console.log("Extracted Data:", data);
+                console.log("===== EXTRACTED DATA =====");
+                console.log(JSON.stringify(data, null, 2));
+                console.log("==========================");
+
                 return data as CustomerFull;
             } catch (jsonError) {
                 console.error("Failed to parse JSON:", jsonError);
+                console.log("Failed text was:", text);
+                return null;
             }
         }
     } catch (error) {

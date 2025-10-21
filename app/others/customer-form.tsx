@@ -28,47 +28,28 @@ export default function CustomerForm() {
         return <LoadingSpinner />;
     }
 
-    const refD = useRef<any>(null);
-    const refP = useRef<any>(null);
+    const refDOB = useRef<any>(null);
+    const refPrescription = useRef<any>(null);
 
-    const openDatePickerForPresValidation = () => {
-        refP.current?.showDatePicker(true);
+    const openDatePickerForDOB = () => refDOB.current?.showDatePicker(true);
+    const openDatePickerForPrescription = () =>
+        refPrescription.current?.showDatePicker(true);
+
+    const onChangeDateOfBirth = (date: string) => {
+        if (tmpData) setTmpData({ ...tmpData, dateOfBirth: date });
     };
 
-    const onChnagePresValidation = (date: string) => {
-        if (tmpData) {
-            setTmpData({
-                ...tmpData,
-                dateOfBirth: date,
-            });
-        }
-    };
-
-    const openDatePickerForDateOfBirth = () => {
-        refD.current?.showDatePicker(true);
-    };
-
-    const onChnageDateOfBirth = (date: string) => {
-        if (tmpData) {
-            setTmpData({
-                ...tmpData,
-                dateOfBirth: date,
-            });
-        }
+    const onChangePrescriptionDate = (date: string) => {
+        if (tmpData) setTmpData({ ...tmpData, dateOfPrescription: date });
     };
 
     return (
         <RNSafeAreaView>
             <RNKeyboardAwareScrollView>
-                <RNText variant="title">Patientdaten</RNText>
+                <RNText variant="title">Patientendaten</RNText>
                 <View style={styles.container}>
                     <View>
-                        <RNText
-                            style={{
-                                fontSize: 14,
-                                color: colors.muted,
-                            }}
-                        >
+                        <RNText style={{ fontSize: 14, color: colors.muted }}>
                             Geschlecht
                         </RNText>
                         <View style={{ flexDirection: "row", gap: 8, marginTop: 6 }}>
@@ -76,103 +57,197 @@ export default function CustomerForm() {
                                 label="Mann"
                                 variant={tmpData?.gender === "man" ? "primary" : "outline"}
                                 size="sm"
-                                onPress={() => {
-                                    if (tmpData)
-                                        setTmpData({
-                                            ...tmpData,
-                                            gender: "man",
-                                        });
-                                }}
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, gender: "man" })
+                                }
                             />
                             <RNButton
                                 size="sm"
                                 label="Frau"
                                 variant={tmpData?.gender === "woman" ? "primary" : "outline"}
-                                onPress={() => {
-                                    if (tmpData)
-                                        setTmpData({
-                                            ...tmpData,
-                                            gender: "woman",
-                                        });
-                                }}
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, gender: "woman" })
+                                }
                             />
                         </View>
                     </View>
-                    <RNInput label="Vorname" defaultValue={tmpData?.name} />
-                    <RNInput label="Nachname" defaultValue={tmpData?.lastName} />
+
+                    {/* Basic Patient Info */}
+                    <RNInput
+                        label="Vorname"
+                        defaultValue={tmpData?.firstName}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, firstName: text })
+                        }
+                    />
+                    <RNInput
+                        label="Nachname"
+                        defaultValue={tmpData?.lastName}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, lastName: text })
+                        }
+                    />
                     <RNInput
                         label="E-Mail"
                         keyboardType="email-address"
                         defaultValue={tmpData?.email}
-                        onChangeText={(text) => {
-                            if (tmpData)
-                                setTmpData({
-                                    ...tmpData,
-                                    email: text,
-                                });
-                        }}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, email: text })
+                        }
                         autoCapitalize="none"
                         autoCorrect={false}
                         textContentType="emailAddress"
                         autoComplete="email"
                     />
-                    <Pressable onPress={openDatePickerForDateOfBirth}>
+                    <RNInput
+                        label="Adresse"
+                        defaultValue={tmpData?.address}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, address: text })
+                        }
+                    />
+
+                    {/* Date of Birth */}
+                    <Pressable onPress={openDatePickerForDOB}>
                         <RNInput
                             label="Geburtsdatum"
                             placeholder="JJJJ-MM-TT"
                             defaultValue={tmpData?.dateOfBirth}
                             editable={false}
                         />
-                        <DatePicker
-                            onChangeDate={onChnagePresValidation}
-                            ref={refD}
-                            defaultDate={new Date(tmpData?.dateOfBirth as string)}
-                        />
                     </Pressable>
-                    <RNInput
-                        label="Krankenkasse"
-                        defaultValue={tmpData?.healthInsuranceProvider}
+                    <DatePicker
+                        onChangeDate={onChangeDateOfBirth}
+                        ref={refDOB}
+                        defaultDate={
+                            tmpData?.dateOfBirth ? new Date(tmpData.dateOfBirth) : new Date()
+                        }
                     />
+
                     <RNInput
                         label="Versichertennummer"
-                        defaultValue={tmpData?.healthInsuranceNumber}
+                        defaultValue={tmpData?.insuranceNumber}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, insuranceNumber: text })
+                        }
                     />
                     <RNInput
-                        label="Medizinische Diagnose"
-                        multiline
-                        numberOfLines={4}
-                        defaultValue={tmpData?.medicalDiagnosis}
+                        label="Status-Code"
+                        defaultValue={tmpData?.statusCode}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, statusCode: text })
+                        }
                     />
-                    <RNInput
-                        label="Einlagenart"
-                        multiline
-                        numberOfLines={4}
-                        defaultValue={tmpData?.typeOfInsoles}
-                    />
-                    <Pressable onPress={openDatePickerForPresValidation}>
+
+                    {/* Date of Prescription */}
+                    <Pressable onPress={openDatePickerForPrescription}>
                         <RNInput
-                            label="Verordnung geprüft am"
+                            label="Datum der Verordnung"
                             placeholder="JJJJ-MM-TT"
-                            defaultValue={tmpData?.validationOfPrescription}
+                            defaultValue={tmpData?.dateOfPrescription}
                             editable={false}
                         />
                     </Pressable>
                     <DatePicker
-                        onChangeDate={onChnageDateOfBirth}
-                        ref={refP}
-                        defaultDate={new Date(tmpData?.validationOfPrescription as string)}
+                        onChangeDate={onChangePrescriptionDate}
+                        ref={refPrescription}
+                        defaultDate={
+                            tmpData?.dateOfPrescription
+                                ? new Date(tmpData.dateOfPrescription)
+                                : new Date()
+                        }
                     />
                 </View>
 
-                <View
-                    style={{
-                        marginTop: 16,
-                        flexDirection: "row",
-                        justifyContent: "flex-end",
-                        width: "100%",
-                        gap: 8,
-                    }}
-                >
+                {/* Insurance Data Section */}
+                <RNText variant="title" style={{ marginTop: 16 }}>
+                    Versicherungsdaten
+                </RNText>
+                <View style={styles.container}>
+                    <RNInput
+                        label="Kostenträger / Krankenkasse"
+                        placeholder="z.B. BARMER, AOK Bayern"
+                        defaultValue={tmpData?.healthInsuranceProvider}
+                        onChangeText={(text) =>
+                            tmpData &&
+                            setTmpData({ ...tmpData, healthInsuranceProvider: text })
+                        }
+                    />
+                    <RNInput
+                        label="Kostenträgerkennung"
+                        placeholder="9-stellige Nummer"
+                        keyboardType="numeric"
+                        defaultValue={tmpData?.healthInsuranceProviderId}
+                        onChangeText={(text) =>
+                            tmpData &&
+                            setTmpData({ ...tmpData, healthInsuranceProviderId: text })
+                        }
+                    />
+                    <RNInput
+                        label="Betriebsstätten-Nr. (BSNR)"
+                        placeholder="9-stellige Nummer"
+                        keyboardType="numeric"
+                        defaultValue={tmpData?.clinicId}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, clinicId: text })
+                        }
+                    />
+                    <RNInput
+                        label="Verordnender Arzt"
+                        placeholder="z.B. Dr. med. Max Mustermann"
+                        defaultValue={tmpData?.prescribingDoctor}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, prescribingDoctor: text })
+                        }
+                    />
+                    <RNInput
+                        label="Praxisadresse"
+                        placeholder="Straße, PLZ Stadt"
+                        defaultValue={tmpData?.clinicAddress}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, clinicAddress: text })
+                        }
+                    />
+                    <RNInput
+                        label="Arzt-Nr. (LANR)"
+                        placeholder="9-stellige Nummer"
+                        keyboardType="numeric"
+                        defaultValue={tmpData?.physicianId}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, physicianId: text })
+                        }
+                    />
+                </View>
+
+                {/* Medical Data Section */}
+                <RNText variant="title" style={{ marginTop: 16 }}>
+                    Medizinische Daten
+                </RNText>
+                <View style={styles.container}>
+                    <RNInput
+                        label="Ärztliche Diagnose"
+                        placeholder="z.B. Knick-Senk-Spreizfuß bds."
+                        multiline
+                        numberOfLines={4}
+                        defaultValue={tmpData?.medicalDiagnosis}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, medicalDiagnosis: text })
+                        }
+                    />
+                    <RNInput
+                        label="Art der Verordnung / Einlage"
+                        placeholder="z.B. 2 Paar Weichpolsterbettungseinlagen..."
+                        multiline
+                        numberOfLines={4}
+                        defaultValue={tmpData?.typeOfPrescription}
+                        onChangeText={(text) =>
+                            tmpData && setTmpData({ ...tmpData, typeOfPrescription: text })
+                        }
+                    />
+                </View>
+
+                {/* Buttons */}
+                <View style={styles.actions}>
                     <RNButton
                         variant="outline"
                         label="Stornieren"
@@ -193,5 +268,12 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         padding: 12,
+    },
+    actions: {
+        marginTop: 16,
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        width: "100%",
+        gap: 8,
     },
 });

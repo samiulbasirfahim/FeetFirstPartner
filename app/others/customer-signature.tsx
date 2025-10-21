@@ -20,6 +20,8 @@ export default function CustomerSignature() {
     const { addCustomer, addCustomerFullData, tmpData, setTmpData } =
         useCustomerStore();
 
+    const company_name = "Musterfirma GmbH";
+
     async function uploadSignature() {
         if (!signature) return;
         setIsLoading(true);
@@ -41,7 +43,7 @@ export default function CustomerSignature() {
                 Mit meiner Unterschrift willige ich ein, die Kosten des Auftrags selbst
                 zu übernehmen, falls die Krankenkasse meine nachträgliche Leistung nicht
                 bewilligt bzw. die Kosten nicht übernimmt. Mit meiner Unterschrift
-                bestätige ich, dass die Orthopädieschuhtechnik Wild-Schlögl KG meine
+                bestätige ich, dass die Orthopädieschuhtechnik {company_name} meine
                 genannten Daten gemäß der DSGVO zur Weiterverarbeitung verwenden darf.
                 Ich nehme zur Kenntnis, dass bei Nichterhaltung des vereinbarten Termins
                 bzw. nicht rechtzeitig erfolgter Terminabsage (24 Stunden zuvor) eine

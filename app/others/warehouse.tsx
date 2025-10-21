@@ -8,7 +8,14 @@ import { colors } from "@/constants/colors";
 import { useWarehouseStore } from "@/store/warehouse";
 import { WarehouseData } from "@/types/warehouse-data";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
-import { FastForward, Plus, Save, SkipForward, X } from "lucide-react-native";
+import {
+    BadgeX,
+    FastForward,
+    Plus,
+    Save,
+    SkipForward,
+    X,
+} from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
@@ -21,6 +28,7 @@ export default function Warehouse() {
         setTmpData,
         addWarehouseItem,
         updateWarehouseItem,
+        removeWarehouseItem,
     } = useWarehouseStore();
 
     const [selected, setSelected] = useState<number>(0);
@@ -62,6 +70,15 @@ export default function Warehouse() {
         } else {
             setTmpData([]);
             router.back();
+        }
+    }
+
+    function handleDelete() {
+        if (selectedItem && selectedItem.id) {
+            removeWarehouseItem(selectedItem.id);
+            if(router.canGoBack()){
+                router.back();
+            }
         }
     }
 
@@ -204,12 +221,21 @@ export default function Warehouse() {
                         gap: 8,
                     }}
                 >
-                    <RNButton
-                        onPress={handleSkip}
-                        variant="outline"
-                        label="Überspringen"
-                        icon={SkipForward}
-                    />
+                    {isEditing !== "true" ? (
+                        <RNButton
+                            onPress={handleSkip}
+                            variant="outline"
+                            label="Überspringen"
+                            icon={SkipForward}
+                        />
+                    ) : (
+                        <RNButton
+                            onPress={handleDelete}
+                            variant="outline"
+                            label="löschen"
+                            icon={BadgeX}
+                        />
+                    )}
                     <RNButton
                         onPress={handleNext}
                         label={
