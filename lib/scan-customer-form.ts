@@ -115,9 +115,12 @@ Health Insurance Provider (Kostenträger / Krankenkasse):
 - Default: ""
 
 Health Insurance Provider ID (Kostenträgerkennung):
-- Look for: "Kostenträgerkennung", "IK-Nummer", "Provider ID"
-- Example: "108380007"
-- 9-digit number
+- Look for: "Kostenträgerkennung", "IK-Nummer", "Kassen-Nr.", "Provider ID"
+- CRITICAL: This may appear as "Kassen-Nr." on the left side of the form
+- Also look in the top right corner in the field labeled "Apotheken-Nummer / IK"
+- This is a 7-9 digit number (e.g., "4200042", "108380007")
+- DO NOT confuse with Versicherten-Nr. (patient insurance number) or BVG boxes (6,7,8,9)
+- The BVG boxes indicate prescription type, NOT the provider ID
 - Default: ""
 
 Clinic ID (Betriebsstätten-Nr / BSNR):

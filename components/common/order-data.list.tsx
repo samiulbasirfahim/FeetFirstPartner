@@ -6,15 +6,26 @@ import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 import { router } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
+import { notify } from "@/lib/notify";
 
 export function OrderDataList() {
     const { orders } = useOrderStore();
     const [permission, requestPermission] = useCameraPermissions();
 
-    const handleCreateOrder = (status: "pending" | "completed" | "ready") => {
+    const handleCreateOrder = async (
+        status: "pending" | "completed" | "ready",
+    ) => {
         if (permission?.granted === false) {
-            requestPermission();
-            return;
+            const permission = await requestPermission();
+            if (!permission.granted) {
+                notify({
+                    type: "error",
+                    title: "Berechtigung verweigert",
+                    message:
+                        "Kameraberechtigung ist erforderlich, um Artikel zu scannen.",
+                });
+                return;
+            }
         }
 
         router.push({
