@@ -15,59 +15,45 @@ import { LoginPayload } from "@/types/auth";
 export default function LoginScreen() {
   const { login } = useAuthStore();
 
-  const [form, setForm] = useState<LoginPayload>({
-    email: "",
-    password: "",
-  });
-
-  const [err, setErr] = useState<Partial<LoginPayload>>({});
-
-  const handleSignIn = () => {
-    login(form);
-    router.replace("/(tabs)/scan");
-  };
-
-  return (
-    <RNSafeAreaView>
-      <RNKeyboardAwareScrollView>
-        <RNText
-          variant="title"
-          style={{
-            textAlign: "center",
-            fontWeight: "600",
-            fontSize: 28,
-            marginTop: 32,
-          }}
-        >
-          Login
-        </RNText>
-        <View>
-          <View style={styles.form}>
-            <Image
-              source={logo}
-              style={{
-                width: 80,
-                height: 80,
-                alignSelf: "center",
-                marginTop: 16,
-                marginBottom: 32,
-              }}
-            />
-            <RNInput label="Benutzername or E-Mail" />
-            {err.email && <RNText variant="error">{err.email}</RNText>}
-            <RNInput label="Passwort" secureTextEntry />
-            {err.email && <RNText variant="error">{err.password}</RNText>}
-            <RNButton
-              onPress={handleSignIn}
-              label="Anmelden"
-              variant="primary"
-              style={{ marginTop: 16 }}
-            />
-          </View>
-        </View>
-      </RNKeyboardAwareScrollView>
-    </RNSafeAreaView>
-  );
+    return (
+        <RNSafeAreaView>
+            <RNKeyboardAwareScrollView>
+                <RNText
+                    variant="title"
+                    style={{
+                        textAlign: "center",
+                        fontWeight: "600",
+                        fontSize: 28,
+                        marginTop: 32,
+                    }}
+                >
+                    Login
+                </RNText>
+                <View>
+                    <View style={styles.form}>
+                        <Image
+                            source={logo}
+                            style={{
+                                width: 80,
+                                height: 80,
+                                alignSelf: "center",
+                                marginTop: 16,
+                                marginBottom: 32,
+                            }}
+                        />
+                        <RNInput label="E-Mail" />
+                        <RNInput label="Passwort" secureTextEntry />
+                        <RNButton
+                            onPress={handleSignIn}
+                            label="Anmelden"
+                            variant="primary"
+                            style={{ marginTop: 16 }}
+                        />
+                    </View>
+                </View>
+            </RNKeyboardAwareScrollView>
+        </RNSafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({

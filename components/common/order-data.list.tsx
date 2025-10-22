@@ -4,14 +4,23 @@ import { notify } from "@/lib/notify";
 import { useOrderStore } from "@/store/order";
 import { useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { Camera, EuroIcon } from "lucide-react-native";
+import { Camera, EuroIcon, Trash } from "lucide-react-native";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
 
 export function OrderDataList() {
-    const { orders } = useOrderStore();
+    const { orders, removeOrder } = useOrderStore();
     const [permission, requestPermission] = useCameraPermissions();
+
+    function handleDeleteOrder(id: number) {
+        removeOrder(id);
+        notify({
+            type: "success",
+            title: "Auftrag gelöscht",
+            message: "Der Auftrag wurde erfolgreich gelöscht.",
+        });
+    }
 
     const handleCreateOrder = async (
         status: "pending" | "completed" | "shipped",
@@ -133,11 +142,23 @@ export function OrderDataList() {
         );
     }
 
-    const renderAction = () => {
+    const renderAction = ({ id }: { id: number }) => {
         return (
-            <View>
-                <TouchableOpacity>
-                    <RNText>Löschen</RNText>
+            <View style={{ justifyContent: "center", height: "100%" }}>
+                <TouchableOpacity
+                    style={{
+                        width: 60,
+                        height: 60,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        borderRadius: 8,
+                    }}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                        handleDeleteOrder(id);
+                    }}
+                >
+                    <Trash size={24} color={colors.error} />
                 </TouchableOpacity>
             </View>
         );
@@ -153,7 +174,13 @@ export function OrderDataList() {
                 renderItem={({ item }) => {
                     if (item.status === "shipped") {
                         return (
-                            <Swipeable renderRightActions={renderAction}>
+                            <Swipeable
+                                renderRightActions={() => renderAction({ id: item.id })}
+                                containerStyle={{
+                                    borderRadius: 8,
+                                    backgroundColor: colors.border,
+                                }}
+                            >
                                 <RenderItem item={item} />
                             </Swipeable>
                         );
