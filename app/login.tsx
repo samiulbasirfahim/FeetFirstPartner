@@ -9,13 +9,11 @@ import { colors } from "@/constants/colors";
 import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { useAuthStore } from "@/store/auth";
+import { useState } from "react";
+import { LoginPayload } from "@/types/auth";
 
 export default function LoginScreen() {
-    const { login } = useAuthStore();
-    const handleSignIn = () => {
-        login();
-        router.replace("/(tabs)/scan");
-    };
+  const { login } = useAuthStore();
 
     return (
         <RNSafeAreaView>
@@ -59,12 +57,12 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-    form: {
-        padding: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: colors.border,
-        marginTop: 24,
-        gap: 8,
-    },
+  form: {
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginTop: 24,
+    gap: 8,
+  },
 });
