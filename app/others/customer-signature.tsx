@@ -8,6 +8,7 @@ import { uploadBase64ToCloudinary } from "@/lib/cloudinary";
 import { notify } from "@/lib/notify";
 import { useCustomerStore } from "@/store/customer";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import { Redirect } from "expo-router";
 import { Check } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -33,6 +34,9 @@ export default function CustomerSignature() {
             setIsLoading(false);
             console.error("Error uploading signature:", error);
         }
+    }
+    if (tmpData === null) {
+        return <Redirect href="/customer" />;
     }
 
     return (
@@ -98,6 +102,7 @@ export default function CustomerSignature() {
                         lastOrderDate: "25.12.2025",
                         orderStatus: "shipped",
                     });
+                    setTmpData(null);
                     navigation.dispatch(StackActions.pop(2));
                 }}
             />

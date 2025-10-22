@@ -7,7 +7,7 @@ import { notify } from "@/lib/notify";
 import { useCustomerStore } from "@/store/customer";
 import { useOrderStore } from "@/store/order";
 import { StackActions } from "@react-navigation/native";
-import { useNavigation } from "expo-router";
+import { Redirect, useNavigation } from "expo-router";
 import { FastForward, Save } from "lucide-react-native";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
@@ -83,6 +83,10 @@ export default function OrderForm() {
         setTmpData(null);
         navigation.dispatch(StackActions.pop(2));
     };
+
+    if (tmpData === null) {
+        return <Redirect href="/(tabs)/scan" />;
+    }
 
     return (
         <RNSafeAreaView>
