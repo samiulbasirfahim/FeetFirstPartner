@@ -51,7 +51,7 @@ REQUIRED OUTPUT STRUCTURE:
   "physicianId": "Arzt-Nr / LANR",
   "medicalDiagnosis": "diagnosis description",
   "typeOfPrescription": "prescription/insole description",
-  "importanceType": "importance/urgency classification"
+  "importanceType": ["array", "of", "box", "numbers"]
 }
 
 FIELD EXTRACTION RULES:
@@ -178,24 +178,31 @@ Type of Prescription (Art der Verordnung / Einlage):
 - Include: quantity (Paar), type (Weichpolsterung, Einlagen), specifications, reasons
 - Default: ""
 
-Importance Type:
-- CRITICAL: Look at the BVG boxes in the top right corner (numbered 6, 7, 8, 9)
-- These boxes indicate the category/importance of the prescription
-- Check which boxes are filled/checked:
-  * Box 6 = "Hilfsmittel" (Medical aids/devices)
-  * Box 7 = "Impfstoff" (Vaccines)
-  * Box 8 = "Sprechstundenbedarf" (Practice supplies)
-  * Box 9 = "Begleit-Pflicht" (Accompanying obligation)
-- Extract the checked box number(s) as the importance type
-- If multiple boxes checked, combine them (e.g., "6,7" or "6,8,9")
-- Common patterns:
-  * "6" = Hilfsmittel (most common for orthopedic insoles)
-  * "7" = Impfstoff
-  * "8" = Sprechstundenbedarf
-  * "9" = Begleit-Pflicht
-  * "6,7,8,9" = All categories apply
-- Return the box number(s) as string: "6", "7", "8", "9", "6,7", "6,8,9", etc.
-- Default: "6" (Hilfsmittel - most common for shoe insoles)
+Importance Type (BVG Boxes):
+- CRITICAL: Look at the BVG boxes in the TOP RIGHT CORNER of the document
+- Location: In the header section with label "BVG" next to "Spr.-St. Bedarf" and "Apotheken-Nummer / IK"
+- Visual description: These are 4 small square boxes arranged in a row, each containing a number: 6, 7, 8, 9
+- The boxes are located directly above the "Zuzahlung" and "Gesamt-Brutto" table
+- Check which boxes are FILLED/HIGHLIGHTED with pink/red color or have visible emphasis
+- A box is CHECKED if it has a colored background (pink/red/yellow) or the number inside is clearly emphasized
+- MULTIPLE boxes can be checked - extract ALL checked boxes
+- Box meanings:
+  * "6" = "Hilfsmittel" (Medical aids/devices) - MOST COMMON for orthopedic insoles
+  * "7" = "Impfstoff" (Vaccines)
+  * "8" = "Sprechstundenbedarf" (Practice supplies)
+  * "9" = "Begleit-Pflicht" (Accompanying obligation)
+- Real examples from prescriptions:
+  * Boxes 6 and 9 both highlighted → return "6,9" (very common combination)
+  * Only box 6 highlighted → return "6"
+  * Boxes 6, 7, and 9 highlighted → return "6,7,9"
+  * All boxes 6, 7, 8, 9 highlighted → return "6,7,8,9"
+  * Only box 9 highlighted → return "9"
+- Look VERY CAREFULLY at the coloring/highlighting of EACH box
+- Check all 4 boxes and report ALL that are highlighted
+- Do NOT confuse with other numbers on the form (like Kassen-Nr., Versicherten-Nr., etc.)
+- Return as comma-separated string: "6", "7", "8", "9", "6,9", "6,7", "6,7,8,9", etc.
+- Order matters: always list in numerical order (6,7,8,9)
+- Default: "6" (if completely unclear, assume Hilfsmittel for orthopedic prescriptions)
 
 IMPORTANT NOTES:
 - All fields must be strings

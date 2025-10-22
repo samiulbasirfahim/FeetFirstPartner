@@ -72,6 +72,8 @@ const variants: Variants = {
             color: colors.background,
         },
         button: {
+            borderWidth: 1,
+            borderColor: colors.border,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
@@ -88,6 +90,8 @@ const variants: Variants = {
             color: colors.background,
         },
         button: {
+            borderWidth: 1,
+            borderColor: colors.border,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",

@@ -16,6 +16,7 @@ export default function CustomerForm() {
     const { tmpData, setTmpData, isLoading } = useCustomerStore();
 
     function handleNext() {
+        if (!tmpData?.email) return;
         router.push("/others/customer-signature");
     }
 
@@ -41,6 +42,18 @@ export default function CustomerForm() {
 
     const onChangePrescriptionDate = (date: string) => {
         if (tmpData) setTmpData({ ...tmpData, dateOfPrescription: date });
+    };
+
+    const toggleImportanceType = (type: string) => {
+        if (!tmpData) return;
+        const current = tmpData.importanceType || [];
+        const has9 = current.includes(type);
+
+        const newValues = has9
+            ? current.filter((v) => v !== type)
+            : [...current, type].sort();
+
+        setTmpData({ ...tmpData, importanceType: newValues });
     };
 
     return (
@@ -90,7 +103,7 @@ export default function CustomerForm() {
                         }
                     />
                     <RNInput
-                        label="E-Mail"
+                        label="E-Mail (*)"
                         keyboardType="email-address"
                         defaultValue={tmpData?.email}
                         onChangeText={(text) =>
@@ -101,6 +114,11 @@ export default function CustomerForm() {
                         textContentType="emailAddress"
                         autoComplete="email"
                     />
+                    {tmpData?.email && !/\S+@\S+\.\S+/.test(tmpData.email) && (
+                        <RNText variant="error">
+                            Bitte eine gültige E-Mail-Adresse eingeben.
+                        </RNText>
+                    )}
                     <RNInput
                         label="Adresse"
                         defaultValue={tmpData?.address}
@@ -128,6 +146,7 @@ export default function CustomerForm() {
 
                     <RNInput
                         label="Versichertennummer"
+                        keyboardType="numeric"
                         defaultValue={tmpData?.insuranceNumber}
                         onChangeText={(text) =>
                             tmpData && setTmpData({ ...tmpData, insuranceNumber: text })
@@ -136,6 +155,7 @@ export default function CustomerForm() {
                     <RNInput
                         label="Status-Code"
                         defaultValue={tmpData?.statusCode}
+                        keyboardType="numeric"
                         onChangeText={(text) =>
                             tmpData && setTmpData({ ...tmpData, statusCode: text })
                         }
@@ -252,54 +272,53 @@ export default function CustomerForm() {
                         <RNText
                             style={{ fontSize: 14, color: colors.muted, marginBottom: 6 }}
                         >
-                            BVG Kategorie (Wichtigkeit)
+                            BVG Kategorie (Mehrfachauswahl möglich)
                         </RNText>
                         <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
                             <RNButton
                                 label="6 - Hilfsmittel"
                                 variant={
-                                    tmpData?.importanceType === "6" ? "primary" : "outline"
+                                    tmpData?.importanceType?.includes("6") ? "primary" : "outline"
                                 }
                                 size="sm"
-                                onPress={() =>
-                                    tmpData && setTmpData({ ...tmpData, importanceType: "6" })
-                                }
+                                onPress={() => {
+                                    toggleImportanceType("6");
+                                }}
                             />
                             <RNButton
                                 label="7 - Impfstoff"
                                 variant={
-                                    tmpData?.importanceType === "7" ? "primary" : "outline"
+                                    tmpData?.importanceType?.includes("7") ? "primary" : "outline"
                                 }
                                 size="sm"
-                                onPress={() =>
-                                    tmpData && setTmpData({ ...tmpData, importanceType: "7" })
-                                }
+                                onPress={() => {
+                                    toggleImportanceType("7");
+                                }}
                             />
                             <RNButton
                                 label="8 - Sprechstundenbedarf"
                                 variant={
-                                    tmpData?.importanceType === "8" ? "primary" : "outline"
+                                    tmpData?.importanceType?.includes("8") ? "primary" : "outline"
                                 }
                                 size="sm"
-                                onPress={() =>
-                                    tmpData && setTmpData({ ...tmpData, importanceType: "8" })
-                                }
+                                onPress={() => {
+                                    toggleImportanceType("8");
+                                }}
                             />
                             <RNButton
                                 label="9 - Begleit-Pflicht"
                                 variant={
-                                    tmpData?.importanceType === "9" ? "primary" : "outline"
+                                    tmpData?.importanceType?.includes("9") ? "primary" : "outline"
                                 }
                                 size="sm"
-                                onPress={() =>
-                                    tmpData && setTmpData({ ...tmpData, importanceType: "9" })
-                                }
+                                onPress={() => {
+                                    toggleImportanceType("9");
+                                }}
                             />
                         </View>
                     </View>
                 </View>
 
-                {/* Buttons */}
                 <View style={styles.actions}>
                     <RNButton
                         variant="outline"
@@ -307,7 +326,12 @@ export default function CustomerForm() {
                         icon={X}
                         onPress={handleCancel}
                     />
-                    <RNButton label="Nächste" icon={FastForward} onPress={handleNext} />
+                    <RNButton
+                        disabled={!tmpData?.email}
+                        label="Nächste"
+                        icon={FastForward}
+                        onPress={handleNext}
+                    />
                 </View>
             </RNKeyboardAwareScrollView>
         </RNSafeAreaView>

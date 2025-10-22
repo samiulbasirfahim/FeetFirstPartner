@@ -24,7 +24,7 @@ const initialCustomerFullData: CustomerFull[] = [
         medicalDiagnosis: "Knick-Senk-Spreizfuß bds., Achillodynie li.",
         typeOfPrescription:
             "2 Paar Weichpolsterbettungseinlagen + Fersenweichpolsterung 2x nach Formabdruck; Quer & Längsgewölbeunterstützung bds.",
-        importanceType: "",
+        importanceType: [],
     },
     {
         id: 2,

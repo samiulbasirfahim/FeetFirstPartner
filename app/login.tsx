@@ -13,7 +13,24 @@ import { useState } from "react";
 import { LoginPayload } from "@/types/auth";
 
 export default function LoginScreen() {
-  const { login } = useAuthStore();
+    const { login } = useAuthStore();
+
+    const [form, setForm] = useState<LoginPayload>({
+        email: "",
+        password: "",
+    });
+
+    const [err, setErr] = useState<Partial<LoginPayload>>({});
+
+    const handleSignIn = () => {
+        setErr({});
+        const err_from_form = login(form);
+        if (err_from_form) {
+            setErr(err_from_form);
+            return;
+        }
+        router.replace("/(tabs)/scan");
+    };
 
     return (
         <RNSafeAreaView>
@@ -41,8 +58,22 @@ export default function LoginScreen() {
                                 marginBottom: 32,
                             }}
                         />
-                        <RNInput label="E-Mail" />
-                        <RNInput label="Passwort" secureTextEntry />
+                        <RNInput
+                            label="Benutzername or E-Mail"
+                            onChangeText={(text) => setForm({ ...form, email: text })}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            value={form.email}
+                        />
+                        {err.email && <RNText variant="error">{err.email}</RNText>}
+                        <RNInput
+                            label="Passwort"
+                            secureTextEntry
+                            onChangeText={(text) => setForm({ ...form, password: text })}
+                            autoCapitalize="none"
+                            value={form.password}
+                        />
+                        {err.password && <RNText variant="error">{err.password}</RNText>}
                         <RNButton
                             onPress={handleSignIn}
                             label="Anmelden"
@@ -57,12 +88,12 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  form: {
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginTop: 24,
-    gap: 8,
-  },
+    form: {
+        padding: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: colors.border,
+        marginTop: 24,
+        gap: 8,
+    },
 });

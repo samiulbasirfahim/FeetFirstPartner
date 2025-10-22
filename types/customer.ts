@@ -46,5 +46,5 @@ export type CustomerFull = {
     // medical info
     medicalDiagnosis: string;
     typeOfPrescription: string;
-    importanceType: string;
+    importanceType: string[];
 };

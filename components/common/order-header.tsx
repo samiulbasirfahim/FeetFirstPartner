@@ -15,13 +15,13 @@ export function OrderHeader() {
 
     const statusOptions: DropdownOption[] = [
         { label: "Alle", value: "all", placeHolder: "Alle" },
-        { label: "Ausstehend", value: "pending", placeHolder: "Ausstehend" },
+        { label: "In Fertigung", value: "pending", placeHolder: "In Fertigung" },
         {
-            label: "Fertiggestellt",
+            label: "Abholbereit",
             value: "completed",
-            placeHolder: "Fertiggestellt",
+            placeHolder: "Abholbereit",
         },
-        { label: "Bereit zur Abholung", value: "shipped", placeHolder: "Bereit" },
+        { label: "Erledigt", value: "shipped", placeHolder: "Erledigt" },
     ];
 
     const filterOptions: DropdownOption[] = [
