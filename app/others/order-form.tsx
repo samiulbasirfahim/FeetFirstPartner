@@ -9,6 +9,7 @@ import { useOrderStore } from "@/store/order";
 import { StackActions } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
 import { FastForward, Save } from "lucide-react-native";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 
 export default function OrderForm() {
@@ -33,7 +34,7 @@ export default function OrderForm() {
                 price: tmpData.order_price,
                 status: tmpData.status!,
                 customerId: tmpData.customer_id,
-                customerName: customer?.name + " " + customer?.lastName,
+                customerName: customer?.firstName + " " + customer?.lastName,
                 orderNumber: tmpData.order_id.toString(),
                 createdAt: tmpData.order_createdAt,
             });
@@ -43,7 +44,7 @@ export default function OrderForm() {
                 price: tmpData.order_price,
                 status: tmpData.status!,
                 customerId: tmpData.customer_id,
-                customerName: customer?.name + " " + customer?.lastName,
+                customerName: customer?.firstName + " " + customer?.lastName,
                 orderNumber: tmpData.order_id.toString(),
                 createdAt: tmpData.order_createdAt,
             });
@@ -65,6 +66,19 @@ export default function OrderForm() {
         });
     };
 
+    const orderStatus = useMemo(() => {
+        switch (tmpData?.status ?? "") {
+            case "pending":
+                return "In Fertigung";
+            case "completed":
+                return "Abholbereit";
+            case "shipped":
+                return "Erledigt";
+            default:
+                return "Unbekannt";
+        }
+    }, [tmpData?.status ?? ""]);
+
     const handleSkip = () => {
         setTmpData(null);
         navigation.dispatch(StackActions.pop(2));
@@ -78,7 +92,7 @@ export default function OrderForm() {
                     <View style={styles.infoRow}>
                         <RNText style={{ fontWeight: "700" }}>Name: </RNText>
                         <RNText variant="caption">
-                            {customer?.name + " " + customer?.lastName}
+                            {customer?.firstName + " " + customer?.lastName}
                         </RNText>
                     </View>
                     <View style={styles.infoRow}>
@@ -112,7 +126,7 @@ export default function OrderForm() {
 
                     <View style={styles.infoRow}>
                         <RNText style={{ fontWeight: "700" }}>Status: </RNText>
-                        <RNText variant="caption">{tmpData?.status}</RNText>
+                        <RNText variant="caption">{orderStatus}</RNText>
                     </View>
                 </View>
                 <View

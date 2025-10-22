@@ -43,7 +43,7 @@ export default function LoginScreen() {
                                 marginBottom: 32,
                             }}
                         />
-                        <RNInput label="Benutzername or E-Mail" />
+                        <RNInput label="E-Mail" />
                         <RNInput label="Passwort" secureTextEntry />
                         <RNButton
                             onPress={handleSignIn}
