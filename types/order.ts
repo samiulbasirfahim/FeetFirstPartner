@@ -4,6 +4,6 @@ export type Order = {
     customerName: string;
     customerId: number;
     price: number;
-    status: "pending" | "completed" | "ready";
+    status: "pending" | "completed" | "shipped";
     createdAt?: string;
 };

@@ -4,7 +4,7 @@ export type Customer = {
     dateOfBirth: string;
     lastOrderDate: string;
     contact: string;
-    orderStatus: "ready" | "pending" | "completed";
+    orderStatus: "shipped" | "pending" | "completed";
 };
 
 // export type CustomerFull = {
@@ -46,4 +46,5 @@ export type CustomerFull = {
     // medical info
     medicalDiagnosis: string;
     typeOfPrescription: string;
+    importanceType: string;
 };

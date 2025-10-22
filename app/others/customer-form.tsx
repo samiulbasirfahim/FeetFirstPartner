@@ -46,8 +46,10 @@ export default function CustomerForm() {
     return (
         <RNSafeAreaView>
             <RNKeyboardAwareScrollView>
+                {/* Patient Data Section */}
                 <RNText variant="title">Patientendaten</RNText>
                 <View style={styles.container}>
+                    {/* Gender */}
                     <View>
                         <RNText style={{ fontSize: 14, color: colors.muted }}>
                             Geschlecht
@@ -244,6 +246,57 @@ export default function CustomerForm() {
                             tmpData && setTmpData({ ...tmpData, typeOfPrescription: text })
                         }
                     />
+
+                    {/* Importance Type - BVG Boxes */}
+                    <View>
+                        <RNText
+                            style={{ fontSize: 14, color: colors.muted, marginBottom: 6 }}
+                        >
+                            BVG Kategorie (Wichtigkeit)
+                        </RNText>
+                        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
+                            <RNButton
+                                label="6 - Hilfsmittel"
+                                variant={
+                                    tmpData?.importanceType === "6" ? "primary" : "outline"
+                                }
+                                size="sm"
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, importanceType: "6" })
+                                }
+                            />
+                            <RNButton
+                                label="7 - Impfstoff"
+                                variant={
+                                    tmpData?.importanceType === "7" ? "primary" : "outline"
+                                }
+                                size="sm"
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, importanceType: "7" })
+                                }
+                            />
+                            <RNButton
+                                label="8 - Sprechstundenbedarf"
+                                variant={
+                                    tmpData?.importanceType === "8" ? "primary" : "outline"
+                                }
+                                size="sm"
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, importanceType: "8" })
+                                }
+                            />
+                            <RNButton
+                                label="9 - Begleit-Pflicht"
+                                variant={
+                                    tmpData?.importanceType === "9" ? "primary" : "outline"
+                                }
+                                size="sm"
+                                onPress={() =>
+                                    tmpData && setTmpData({ ...tmpData, importanceType: "9" })
+                                }
+                            />
+                        </View>
+                    </View>
                 </View>
 
                 {/* Buttons */}

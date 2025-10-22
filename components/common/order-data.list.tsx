@@ -1,19 +1,20 @@
 import { colors } from "@/constants/colors";
+import { Swipeable } from "react-native-gesture-handler";
+import { notify } from "@/lib/notify";
 import { useOrderStore } from "@/store/order";
+import { useCameraPermissions } from "expo-camera";
+import { router } from "expo-router";
 import { Camera, EuroIcon } from "lucide-react-native";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { RNButton } from "../ui/button";
 import RNText from "../ui/text";
-import { router } from "expo-router";
-import { useCameraPermissions } from "expo-camera";
-import { notify } from "@/lib/notify";
 
 export function OrderDataList() {
     const { orders } = useOrderStore();
     const [permission, requestPermission] = useCameraPermissions();
 
     const handleCreateOrder = async (
-        status: "pending" | "completed" | "ready",
+        status: "pending" | "completed" | "shipped",
     ) => {
         if (permission?.granted === false) {
             const permission = await requestPermission();
@@ -34,7 +35,7 @@ export function OrderDataList() {
         });
     };
 
-    const renderItem = ({ item }: { item: (typeof orders)[0] }) => {
+    const RenderItem = ({ item }: { item: (typeof orders)[0] }) => {
         return (
             <View style={styles.renderItemcontainer}>
                 <View style={styles.labelContainer}>
@@ -43,16 +44,16 @@ export function OrderDataList() {
                     </RNText>
 
                     <View style={{ flexShrink: 0 }}>
-                        {item.status === "ready" && (
-                            <RNButton label="Abholbereit" variant="primary" size="xs" />
-                        )}
-
-                        {item.status === "pending" && (
-                            <RNButton label="Ausstehend" variant="outline" size="xs" />
+                        {item.status === "shipped" && (
+                            <RNButton label="Erledigt" variant="outline" size="xs" />
                         )}
 
                         {item.status === "completed" && (
-                            <RNButton label="Abgeschlossen" variant="green" size="xs" />
+                            <RNButton label="Abholbereit" variant="green" size="xs" />
+                        )}
+
+                        {item.status === "pending" && (
+                            <RNButton label="In Fertigung" variant="primary" size="xs" />
                         )}
                     </View>
                 </View>
@@ -79,7 +80,7 @@ export function OrderDataList() {
         return (
             <View style={{ gap: 6, paddingBottom: 12 }}>
                 <RNButton
-                    onPress={() => handleCreateOrder("ready")}
+                    onPress={() => handleCreateOrder("pending")}
                     icon={Camera}
                     label="Einlage in Fertigung"
                     size="md"
@@ -93,7 +94,7 @@ export function OrderDataList() {
                     size="md"
                 />
                 <RNButton
-                    onPress={() => handleCreateOrder("pending")}
+                    onPress={() => handleCreateOrder("shipped")}
                     variant="outline"
                     icon={Camera}
                     label="Einlage ausführen"
@@ -132,6 +133,16 @@ export function OrderDataList() {
         );
     }
 
+    const renderAction = () => {
+        return (
+            <View>
+                <TouchableOpacity>
+                    <RNText>Löschen</RNText>
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -139,7 +150,16 @@ export function OrderDataList() {
                 data={orders}
                 contentContainerStyle={{ paddingVertical: 12 }}
                 keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
-                renderItem={renderItem}
+                renderItem={({ item }) => {
+                    if (item.status === "shipped") {
+                        return (
+                            <Swipeable renderRightActions={renderAction}>
+                                <RenderItem item={item} />
+                            </Swipeable>
+                        );
+                    }
+                    return <RenderItem item={item} />;
+                }}
                 ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
             />
         </View>

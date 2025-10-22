@@ -1,16 +1,16 @@
 import { colors } from "@/constants/colors";
 import { DateRange, useOrderStore } from "@/store/order";
+import type { Order } from "@/types/order";
 import { Filter, ListStart } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Dropdown, DropdownOption } from "./dropdown";
 import RNText from "../ui/text";
-import type { Order } from "@/types/order";
+import { Dropdown, DropdownOption } from "./dropdown";
 
 export function OrderHeader() {
     const [selectedFilter, setSelectedFilter] = useState("all");
     const [selectedStatus, setSelectedStatus] = useState<
-        "pending" | "completed" | "ready" | "all"
+        "pending" | "completed" | "shipped" | "all"
     >("all");
 
     const statusOptions: DropdownOption[] = [
@@ -21,7 +21,7 @@ export function OrderHeader() {
             value: "completed",
             placeHolder: "Fertiggestellt",
         },
-        { label: "Bereit zur Abholung", value: "ready", placeHolder: "Bereit" },
+        { label: "Bereit zur Abholung", value: "shipped", placeHolder: "Bereit" },
     ];
 
     const filterOptions: DropdownOption[] = [
@@ -46,7 +46,7 @@ export function OrderHeader() {
     };
 
     const handleStatusSelect = (value: string) => {
-        setSelectedStatus(value as "pending" | "completed" | "ready" | "all");
+        setSelectedStatus(value as "pending" | "completed" | "shipped" | "all");
         filterByStatus(value as Order["status"] | "all");
     };
 

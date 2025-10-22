@@ -4,7 +4,7 @@ import RNText from "@/components/ui/text";
 import { colors } from "@/constants/colors";
 import { handleQrCode } from "@/lib/handleQrCode";
 import { useOrderStore } from "@/store/order";
-import { useCameraPermissions, CameraView } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { router, useLocalSearchParams } from "expo-router";
 import { Flashlight, FlashlightOff } from "lucide-react-native";
 import { useState } from "react";
@@ -14,7 +14,7 @@ export default function QRCodeScanner() {
     const { setTmpData } = useOrderStore();
     const { width } = useWindowDimensions();
     const { status } = useLocalSearchParams<{
-        status: "pending" | "completed" | "ready";
+        status: "pending" | "completed" | "shipped";
     }>();
 
     const [scanned, setScanned] = useState(false);

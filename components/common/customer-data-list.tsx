@@ -22,7 +22,7 @@ export function CustomerDataList() {
                         {item.fullName}
                     </RNText>
                     <View style={{ flexShrink: 0 }}>
-                        {item.orderStatus === "ready" && (
+                        {item.orderStatus === "shipped" && (
                             <RNButton label="Abholbereit" variant="primary" size="xs" />
                         )}
 

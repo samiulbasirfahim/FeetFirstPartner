@@ -94,9 +94,9 @@ export default function CustomerSignature() {
                     addCustomer({
                         dateOfBirth: tmpData?.dateOfBirth!,
                         contact: tmpData?.email!,
-                        fullName: `${tmpData?.name!} ${tmpData?.lastName!}`,
-                        lastOrderDate: tmpData?.validationOfPrescription!,
-                        orderStatus: "ready",
+                        fullName: `${tmpData?.firstName!} ${tmpData?.lastName!}`,
+                        lastOrderDate: "25.12.2025",
+                        orderStatus: "shipped",
                     });
                     navigation.dispatch(StackActions.pop(2));
                 }}

@@ -50,7 +50,8 @@ REQUIRED OUTPUT STRUCTURE:
   "clinicAddress": "clinic/practice address",
   "physicianId": "Arzt-Nr / LANR",
   "medicalDiagnosis": "diagnosis description",
-  "typeOfPrescription": "prescription/insole description"
+  "typeOfPrescription": "prescription/insole description",
+  "importanceType": "importance/urgency classification"
 }
 
 FIELD EXTRACTION RULES:
@@ -80,94 +81,129 @@ Email:
 Address (Adresse):
 - Look for: "Adresse", "Straße", "Address", "Indirizzo"
 - Extract full address including street, number, postal code, city
-- Example format: "Daitenhausener Str. 10, 85386 Eching"
+- Example format: "Gibtsnetallee 42, 89073 Ulm"
 - Default: ""
 
 Date of Birth (Geburtsdatum):
-- Look for: "Geburtsdatum", "Geb.", "Data di nascita", "DOB"
+- Look for: "Geburtsdatum", "Geb.", "geb. am", "Data di nascita", "DOB"
 - Accept formats: DD.MM.YY, DD.MM.YYYY, DD/MM/YYYY
 - ALWAYS convert to YYYY-MM-DD format
-- Example: "22.07.64" → "1964-07-22" or "2064-07-22" (use context, usually 1900s)
+- For 2-digit years: birth dates use 19xx (e.g., "64" = 1964)
+- Example: "24.02.1942" → "1942-02-24"
 - Default: ""
 
 Insurance Number (Versichertennummer):
-- Look for: "Versichertennummer", "Vers.-Nr.", "Insurance Number"
-- Example: "Z411008593"
+- Look for: "Versichertennummer", "Versicherten-Nr.", "Vers.-Nr.", "Insurance Number"
+- Example: "0000042", "Z411008593"
 - Default: ""
 
 Status Code (Status):
 - Look for: "Status", "Status Code"
-- Example: "100000"
+- Usually a numeric code (e.g., "42", "100000")
 - Default: ""
 
 Date of Prescription (Datum der Verordnung):
-- Look for: "Datum der Verordnung", "Verordnungsdatum", "Rezeptdatum", "Prescription Date"
+- Look for: "Datum", "Datum der Verordnung", "Verordnungsdatum", "Rezeptdatum"
 - Accept formats: DD.MM.YY, DD.MM.YYYY
 - ALWAYS convert to YYYY-MM-DD format
-- Example: "07.10.25" → "2025-10-07"
+- For 2-digit years: prescription dates use 20xx (e.g., "16" = 2016)
+- Example: "24.02.2016" → "2016-02-24"
 - Default: ""
 
 VERSICHERUNGSDATEN (INSURANCE DATA):
 
 Health Insurance Provider (Kostenträger / Krankenkasse):
-- Look for: "Kostenträger", "Krankenkasse", "Versicherung", "Insurance"
-- Examples: "BARMER", "AOK Bayern", "TK", "DAK"
+- Look for: "Krankenkasse bzw. Kostenträger", "Kostenträger", "Krankenkasse", "Versicherung"
+- Extract the insurance company name
+- Examples: "AOK Hessen", "BARMER", "AOK Bayern", "AOK Musterbundesland", "TK"
 - Default: ""
 
 Health Insurance Provider ID (Kostenträgerkennung):
 - Look for: "Kostenträgerkennung", "IK-Nummer", "Kassen-Nr.", "Provider ID"
-- CRITICAL: This may appear as "Kassen-Nr." on the left side of the form
-- Also look in the top right corner in the field labeled "Apotheken-Nummer / IK"
-- This is a 7-9 digit number (e.g., "4200042", "108380007")
-- DO NOT confuse with Versicherten-Nr. (patient insurance number) or BVG boxes (6,7,8,9)
-- The BVG boxes indicate prescription type, NOT the provider ID
+- CRITICAL: This appears as "Kassen-Nr." on the left side of the form
+- Also check top right corner in field labeled "Apotheken-Nummer / IK"
+- This is a 7-9 digit number
+- Examples: "4200042", "108380007", "1234567"
+- DO NOT confuse with:
+  * "Versicherten-Nr." (patient insurance number - different field)
+  * "BVG" boxes numbered 6, 7, 8, 9 (these indicate prescription type categories, NOT provider ID)
+  * "Betriebsstätten-Nr." (clinic ID - different field)
 - Default: ""
 
 Clinic ID (Betriebsstätten-Nr / BSNR):
-- Look for: "Betriebsstätten-Nr", "BSNR", "Clinic ID"
-- Example: "644417400"
-- 9-digit number
+- Look for: "Betriebsstätten-Nr", "Betriebsstätten-Nr.", "BSNR", "Clinic ID"
+- Usually a 9-digit number with dash format: "42-000000"
+- Example: "644417400", "42-000000"
 - Default: ""
 
 Prescribing Doctor (Verordnender Arzt):
-- Look for: "Verordnender Arzt", "Arzt", "Doctor", "Dr."
+- Look for: "Verordnender Arzt", "Arzt", "Doctor", "Dr.", doctor name on right side
 - Include title and full name
-- Example: "Dr. med. Alexander Dittmar"
+- Examples: "Dr. med. Alexander Dittmar", "Dr. med Arthur Dent", "Dr. med. Hans-Georg Mustermann"
 - Default: ""
 
 Clinic Address (Praxisadresse):
-- Look for: "Praxisadresse", "Clinic Address", "Practice Address"
+- Look for: "Praxisadresse", "Clinic Address", "Practice Address", address near doctor name
 - Extract full address
-- Example: "Terminalstraße Mitte 18, 85356 München Flughafen"
+- Examples: "Vogonenstr. 42, 89073 Ulm", "Dorfstraße 1, 55555 Bad Musterdorf"
 - Default: ""
 
 Physician ID (Arzt-Nr / LANR):
-- Look for: "Arzt-Nr", "LANR", "Physician ID", "Arztnummer"
-- Example: "732269410"
-- 9-digit number
+- Look for: "Arzt-Nr", "Arzt-Nr.", "LANR", "Physician ID", "Arztnummer"
+- Usually a 9-digit number or text "LANR"
+- Examples: "732269410", "000000-42", "LANR"
 - Default: ""
 
-⚕️ MEDIZINISCHE DATEN (MEDICAL DATA):
+MEDIZINISCHE DATEN (MEDICAL DATA):
 
 Medical Diagnosis (Ärztliche Diagnose):
-- Look for: "Diagnose", "Ärztliche Diagnose", "Diagnosis", "ICD", "Befund"
+- Look for: "Diagnose", "Diagnose:", "Ärztliche Diagnose", "Diagnosis", "ICD", "Befund"
 - Extract complete diagnosis text
-- Example: "Knick-Senk-Spreizfuß bds., Achillodynie li."
-- Common terms: "bds." (beidseitig/bilateral), "li." (links/left), "re." (rechts/right)
+- Examples: 
+  * "Spreizfuss bds. (beidseitig)"
+  * "Knick-Senk-Spreizfuß bds., Achillodynie li."
+  * "1 Paar Weichpolstereinlagen nach Formabdruck"
+- Common abbreviations:
+  * "bds." = beidseitig (bilateral/both sides)
+  * "li." = links (left)
+  * "re." = rechts (right)
 - Default: ""
 
 Type of Prescription (Art der Verordnung / Einlage):
-- Look for: "Art der Verordnung", "Einlage", "Verordnung", "Type of Prescription"
+- Look for: "Art der Verordnung", "Einlage", "Verordnung", "Rp.", prescription details
 - Extract complete prescription description including quantity and specifications
-- Example: "2 Paar Weichpolsterbettungseinlagen + Fersenweichpolsterung 2x aus hygienischen Gründen nach Formabdruck; Quer & Längsgewölbeunterstützung bds."
-- Include details about: quantity (Paar), type (Weichpolsterung, etc.), reasons, specifications
+- Examples:
+  * "1 Paar Weichpolstereinlagen nach Formabdruck, lang mit durchgehender Weichbettung."
+  * "2 Paar Weichpolsterbettungseinlagen + Fersenweichpolsterung 2x aus hygienischen Gründen nach Formabdruck; Quer & Längsgewölbeunterstützung bds."
+- Include: quantity (Paar), type (Weichpolsterung, Einlagen), specifications, reasons
 - Default: ""
+
+Importance Type:
+- CRITICAL: Look at the BVG boxes in the top right corner (numbered 6, 7, 8, 9)
+- These boxes indicate the category/importance of the prescription
+- Check which boxes are filled/checked:
+  * Box 6 = "Hilfsmittel" (Medical aids/devices)
+  * Box 7 = "Impfstoff" (Vaccines)
+  * Box 8 = "Sprechstundenbedarf" (Practice supplies)
+  * Box 9 = "Begleit-Pflicht" (Accompanying obligation)
+- Extract the checked box number(s) as the importance type
+- If multiple boxes checked, combine them (e.g., "6,7" or "6,8,9")
+- Common patterns:
+  * "6" = Hilfsmittel (most common for orthopedic insoles)
+  * "7" = Impfstoff
+  * "8" = Sprechstundenbedarf
+  * "9" = Begleit-Pflicht
+  * "6,7,8,9" = All categories apply
+- Return the box number(s) as string: "6", "7", "8", "9", "6,7", "6,8,9", etc.
+- Default: "6" (Hilfsmittel - most common for shoe insoles)
 
 IMPORTANT NOTES:
 - All fields must be strings
 - Use empty string "" if information is not found - NEVER use null or undefined
 - For dates: ALWAYS convert to YYYY-MM-DD format regardless of input format
-- For 2-digit years: use context (prescription dates are recent = 20xx, birth dates are older = 19xx)
+- For 2-digit years: 
+  * Birth dates (usually older) = 19xx (e.g., "42" = 1942, "64" = 1964)
+  * Prescription dates (recent) = 20xx (e.g., "16" = 2016, "24" = 2024)
 - Extract complete text for diagnosis and prescription fields
 - Do NOT wrap output in markdown code blocks
 - Return ONLY the raw JSON object

@@ -9,7 +9,35 @@ const subDays = (date: Date, days: number) => {
 
 const now = new Date();
 
-export const initialOrders: Order[] = [];
+export const initialOrders: Order[] = [
+    {
+        id: 1,
+        orderNumber: "ORD-1001",
+        customerName: "Muster GmbH",
+        status: "pending",
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+        customerId: 101,
+        price: 250.0,
+    },
+    {
+        id: 2,
+        orderNumber: "ORD-1002",
+        customerName: "Beispiel AG",
+        status: "shipped",
+        createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+        customerId: 102,
+        price: 450.0,
+    },
+    {
+        id: 3,
+        orderNumber: "ORD-1003",
+        customerName: "Demo Co.",
+        status: "completed",
+        createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+        customerId: 103,
+        price: 150.0,
+    },
+];
 
 export enum DateRange {
     All = "ALL",

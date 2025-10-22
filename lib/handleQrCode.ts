@@ -7,7 +7,7 @@ export type QRCodeResponse = {
     order_title: string;
     order_price: number;
     order_createdAt: string;
-    status?: "pending" | "completed" | "ready";
+    status?: "pending" | "completed" | "shipped";
 };
 
 export function handleQrCode(
