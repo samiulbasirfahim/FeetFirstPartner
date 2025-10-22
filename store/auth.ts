@@ -8,7 +8,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-    isLoggedIn: false,
+    isLoggedIn: true,
     login: (data: LoginPayload) => {
         if (data.email.toLowerCase().trim() !== "partner@feetf1rst.com") {
             return { email: "Ungültige E-Mail-Adresse" };

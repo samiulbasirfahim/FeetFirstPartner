@@ -24,7 +24,13 @@ const initialCustomerFullData: CustomerFull[] = [
         medicalDiagnosis: "Knick-Senk-Spreizfuß bds., Achillodynie li.",
         typeOfPrescription:
             "2 Paar Weichpolsterbettungseinlagen + Fersenweichpolsterung 2x nach Formabdruck; Quer & Längsgewölbeunterstützung bds.",
-        importanceType: [],
+        importanceType: {
+            BVG: 2,
+            Hilfsmittel: 1,
+            Impfstoff: 0,
+            "Spr.-St.Bedarf": 0,
+            "Begr.-Pflicht": 1,
+        },
     },
     {
         id: 2,
@@ -49,7 +55,13 @@ const initialCustomerFullData: CustomerFull[] = [
         typeOfPrescription:
             "1 Paar Gel-Soft-Einlagen mit zusätzlicher Fersenweichpolsterung nach Formabdruck.",
 
-        importanceType: "",
+        importance: {
+            BVG: 1,
+            Hilfsmittel: 2,
+            Impfstoff: 0,
+            "Spr.-St.Bedarf": 0,
+            "Begr.-Pflicht": 1,
+        },
     },
 ];
 

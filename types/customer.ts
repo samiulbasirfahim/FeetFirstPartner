@@ -46,5 +46,11 @@ export type CustomerFull = {
     // medical info
     medicalDiagnosis: string;
     typeOfPrescription: string;
-    importanceType: string[];
+    importance: {
+        BVG: number;
+        Hilfsmittel: number;
+        Impfstoff: number;
+        "Spr.-St.Bedarf": number;
+        "Begr.-Pflicht": number;
+    };
 };

@@ -51,12 +51,18 @@ REQUIRED OUTPUT STRUCTURE:
   "physicianId": "Arzt-Nr / LANR",
   "medicalDiagnosis": "diagnosis description",
   "typeOfPrescription": "prescription/insole description",
-  "importanceType": ["array", "of", "box", "numbers"]
+  "importance": {
+    "BVG": 0,
+    "Hilfsmittel": 0,
+    "Impfstoff": 0,
+    "Spr.-St.Bedarf": 0,
+    "Begr.-Pflicht": 0
+  }
 }
 
 FIELD EXTRACTION RULES:
 
-PATIENTENDATEN (PATIENT DATA):
+🩺 PATIENTENDATEN (PATIENT DATA):
 
 Gender:
 - Look for: "Herr"/"Mr" = "man", "Frau"/"Mrs"/"Ms" = "woman"
@@ -110,7 +116,7 @@ Date of Prescription (Datum der Verordnung):
 - Example: "24.02.2016" → "2016-02-24"
 - Default: ""
 
-VERSICHERUNGSDATEN (INSURANCE DATA):
+💳 VERSICHERUNGSDATEN (INSURANCE DATA):
 
 Health Insurance Provider (Kostenträger / Krankenkasse):
 - Look for: "Krankenkasse bzw. Kostenträger", "Kostenträger", "Krankenkasse", "Versicherung"
@@ -154,7 +160,7 @@ Physician ID (Arzt-Nr / LANR):
 - Examples: "732269410", "000000-42", "LANR"
 - Default: ""
 
-MEDIZINISCHE DATEN (MEDICAL DATA):
+⚕️ MEDIZINISCHE DATEN (MEDICAL DATA):
 
 Medical Diagnosis (Ärztliche Diagnose):
 - Look for: "Diagnose", "Diagnose:", "Ärztliche Diagnose", "Diagnosis", "ICD", "Befund"
@@ -178,35 +184,55 @@ Type of Prescription (Art der Verordnung / Einlage):
 - Include: quantity (Paar), type (Weichpolsterung, Einlagen), specifications, reasons
 - Default: ""
 
-Importance Type (BVG Boxes):
-- CRITICAL: Look at the BVG boxes in the TOP RIGHT CORNER of the document
-- Location: In the header section with label "BVG" next to "Spr.-St. Bedarf" and "Apotheken-Nummer / IK"
-- Visual description: These are 4 small square boxes arranged in a row, each containing a number: 6, 7, 8, 9
-- The boxes are located directly above the "Zuzahlung" and "Gesamt-Brutto" table
-- Check which boxes are FILLED/HIGHLIGHTED with pink/red color or have visible emphasis
-- A box is CHECKED if it has a colored background (pink/red/yellow) or the number inside is clearly emphasized
-- MULTIPLE boxes can be checked - extract ALL checked boxes
-- Box meanings:
-  * "6" = "Hilfsmittel" (Medical aids/devices) - MOST COMMON for orthopedic insoles
-  * "7" = "Impfstoff" (Vaccines)
-  * "8" = "Sprechstundenbedarf" (Practice supplies)
-  * "9" = "Begleit-Pflicht" (Accompanying obligation)
-- Real examples from prescriptions:
-  * Boxes 6 and 9 both highlighted → return "6,9" (very common combination)
-  * Only box 6 highlighted → return "6"
-  * Boxes 6, 7, and 9 highlighted → return "6,7,9"
-  * All boxes 6, 7, 8, 9 highlighted → return "6,7,8,9"
-  * Only box 9 highlighted → return "9"
-- Look VERY CAREFULLY at the coloring/highlighting of EACH box
-- Check all 4 boxes and report ALL that are highlighted
-- Do NOT confuse with other numbers on the form (like Kassen-Nr., Versicherten-Nr., etc.)
-- Return as comma-separated string: "6", "7", "8", "9", "6,9", "6,7", "6,7,8,9", etc.
-- Order matters: always list in numerical order (6,7,8,9)
-- Default: "6" (if completely unclear, assume Hilfsmittel for orthopedic prescriptions)
+Importance (BVG Boxes):
+- CRITICAL: Look at the BVG header section in the TOP RIGHT CORNER of the document
+- Location: Row of 5 boxes with these EXACT labels (may be split across 2 lines):
+  1. "BVG" 
+  2. "Hilfs-mittel" or "Hilfsmittel" (may break as "Hilfs-" on line 1, "mittel" on line 2)
+  3. "Impf-stoff" or "Impfstoff" (may break as "Impf-" on line 1, "stoff" on line 2)
+  4. "Spr.-St. Bedarf" or "Spr.-St.Bedarf" (may break across lines)
+  5. "Begr.-Pflicht" (may break across lines)
+- The boxes are small squares located directly ABOVE "Zuzahlung" and "Gesamt-Brutto" sections
+- Visual appearance: Each box may contain a number OR be empty/highlighted with color
+
+EXTRACTION RULES FOR EACH BOX:
+1. Look at EACH of the 5 boxes individually
+2. If a box contains a visible number (like 6, 7, 8, 9), use that number
+3. If a box is highlighted/colored but shows no number, try to infer:
+   - BVG box → typically 0 or empty
+   - Hilfsmittel box → typically 6
+   - Impfstoff box → typically 7
+   - Spr.-St.Bedarf box → typically 8
+   - Begr.-Pflicht box → typically 9
+4. If a box is empty/white with no highlight, use 0
+
+Return as object with EXACT keys:
+{
+  "BVG": number (from BVG box, or 0 if empty),
+  "Hilfsmittel": number (from Hilfs-mittel box, typically 6 if highlighted, or 0 if empty),
+  "Impfstoff": number (from Impf-stoff box, typically 7 if highlighted, or 0 if empty),
+  "Spr.-St.Bedarf": number (from Spr.-St. Bedarf box, typically 8 if highlighted, or 0 if empty),
+  "Begr.-Pflicht": number (from Begr.-Pflicht box, typically 9 if highlighted, or 0 if empty)
+}
+
+Real examples from prescriptions:
+- Image shows boxes with "6" and "9" visible/highlighted → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 9}
+- Only "6" visible in Hilfsmittel box → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 0}
+- All boxes empty → {"BVG": 0, "Hilfsmittel": 0, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 0}
+- All boxes have numbers 6,7,8,9 → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 7, "Spr.-St.Bedarf": 8, "Begr.-Pflicht": 9}
+
+CRITICAL REMINDERS:
+- Look for the LABELS above each box to identify which box is which
+- Labels may be hyphenated or split across 2 lines (e.g., "Hilfs-" / "mittel")
+- ALL 5 boxes MUST be in the response, use 0 for any missing or empty boxes
+- Values must be numbers, not strings
+- Do NOT confuse with other numbers on the form (Kassen-Nr., Versicherten-Nr., Betriebsstätten-Nr.)
+- The row of boxes is in the TOP RIGHT corner, above the payment/billing section
 
 IMPORTANT NOTES:
-- All fields must be strings
+- All fields must be strings EXCEPT "importance" which is an object with number values
 - Use empty string "" if information is not found - NEVER use null or undefined
+- For the "importance" object, use 0 for any box that is not highlighted or empty
 - For dates: ALWAYS convert to YYYY-MM-DD format regardless of input format
 - For 2-digit years: 
   * Birth dates (usually older) = 19xx (e.g., "42" = 1942, "64" = 1964)

@@ -43,17 +43,24 @@ export default function CustomerForm() {
     const onChangePrescriptionDate = (date: string) => {
         if (tmpData) setTmpData({ ...tmpData, dateOfPrescription: date });
     };
+    console.log("TmpData", tmpData);
 
-    const toggleImportanceType = (type: string) => {
+    const handleChangeImportance = (key: string, value: number) => {
         if (!tmpData) return;
-        const current = tmpData.importanceType || [];
-        const has9 = current.includes(type);
-
-        const newValues = has9
-            ? current.filter((v) => v !== type)
-            : [...current, type].sort();
-
-        setTmpData({ ...tmpData, importanceType: newValues });
+        const current = tmpData.importance || {
+            BVG: 0,
+            Hilfsmittel: 0,
+            Impfstoff: 0,
+            "Spr.-St.Bedarf": 0,
+            "Begr.-Pflicht": 0,
+        };
+        setTmpData({
+            ...tmpData,
+            importance: {
+                ...current,
+                [key]: value,
+            },
+        });
     };
 
     return (
@@ -267,52 +274,57 @@ export default function CustomerForm() {
                         }
                     />
 
-                    {/* Importance Type - BVG Boxes */}
                     <View>
                         <RNText
                             style={{ fontSize: 14, color: colors.muted, marginBottom: 6 }}
                         >
-                            BVG Kategorie (Mehrfachauswahl möglich)
+                            Bedeutung
                         </RNText>
-                        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
-                            <RNButton
-                                label="6 - Hilfsmittel"
-                                variant={
-                                    tmpData?.importanceType?.includes("6") ? "primary" : "outline"
-                                }
-                                size="sm"
-                                onPress={() => {
-                                    toggleImportanceType("6");
+                        <View style={styles.container}>
+                            <RNInput
+                                label="BVG"
+                                keyboardType="numeric"
+                                defaultValue={tmpData?.importance?.BVG?.toString() || "0"}
+                                onChangeText={(text) => {
+                                    handleChangeImportance("BVG", parseInt(text) || 0);
                                 }}
                             />
-                            <RNButton
-                                label="7 - Impfstoff"
-                                variant={
-                                    tmpData?.importanceType?.includes("7") ? "primary" : "outline"
+                            <RNInput
+                                label="Hilfsmittel"
+                                keyboardType="numeric"
+                                defaultValue={
+                                    tmpData?.importance?.Hilfsmittel?.toString() || "0"
                                 }
-                                size="sm"
-                                onPress={() => {
-                                    toggleImportanceType("7");
+                                onChangeText={(text) => {
+                                    handleChangeImportance("Hilfsmittel", parseInt(text) || 0);
                                 }}
                             />
-                            <RNButton
-                                label="8 - Sprechstundenbedarf"
-                                variant={
-                                    tmpData?.importanceType?.includes("8") ? "primary" : "outline"
-                                }
-                                size="sm"
-                                onPress={() => {
-                                    toggleImportanceType("8");
+                            <RNInput
+                                label="Impfstoff"
+                                keyboardType="numeric"
+                                defaultValue={tmpData?.importance?.Impfstoff?.toString() || "0"}
+                                onChangeText={(text) => {
+                                    handleChangeImportance("Impfstoff", parseInt(text) || 0);
                                 }}
                             />
-                            <RNButton
-                                label="9 - Begleit-Pflicht"
-                                variant={
-                                    tmpData?.importanceType?.includes("9") ? "primary" : "outline"
+                            <RNInput
+                                label="Spr.-St. Bedarf"
+                                keyboardType="numeric"
+                                defaultValue={
+                                    tmpData?.importance?.["Spr.-St.Bedarf"]?.toString() || "0"
                                 }
-                                size="sm"
-                                onPress={() => {
-                                    toggleImportanceType("9");
+                                onChangeText={(text) => {
+                                    handleChangeImportance("Spr.-St.Bedarf", parseInt(text) || 0);
+                                }}
+                            />
+                            <RNInput
+                                label="Begr.-Pflicht"
+                                keyboardType="numeric"
+                                defaultValue={
+                                    tmpData?.importance?.["Begr.-Pflicht"]?.toString() || "0"
+                                }
+                                onChangeText={(text) => {
+                                    handleChangeImportance("Begr.-Pflicht", parseInt(text) || 0);
                                 }}
                             />
                         </View>
