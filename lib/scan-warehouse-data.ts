@@ -21,74 +21,171 @@ export async function scanWarehouseData() {
         type: "info",
     });
 
-    const model = "gemini-2.5-flash";
+    const model = "gemini-2.0-flash";
 
     const prompt = `
-You are an expert at extracting shoe inventory data from warehouse shipping documents, invoices, and packing slips.
-These documents are in German or Italian.
-CRITICAL RULES:
-1. Return ONLY a valid JSON object with an "items" key containing an array. No markdown, no explanations, no extra text.
-2. Format: { "items": [...] }
-3. Extract all line items from the document.
-4. MERGE duplicate items: If the same label + articleNumber appears multiple times, combine them into ONE item with merged stock.
-5. Each item MUST have this exact structure:
+You are an expert at extracting shoe inventory data from warehouse invoices, packing slips, and delivery notes.
+Documents are in German or Italian.
+
+OUTPUT STRUCTURE:
+Return ONLY valid JSON: { "items": [...] }
+
+Each item:
 {
-  "label": "full product description",
-  "articleNumber": "product code/SKU",
-  "storageLocation": "location from document",
-  "supplier": "company name from document header",
+  "label": "product description",
+  "articleNumber": "article/SKU code",
+  "storageLocation": "destination city",
+  "supplier": "company name from header",
   "stock": [
-    { "key": "size", "quantity": number },
-    { "key": "size", "quantity": number }
+    { "key": "size_or_unit", "quantity": number }
   ],
   "status": "OK" | "Low"
 }
-Stock Array Structure (SHOES ONLY):
-- Stock is an array of objects with "key" (shoe size) and "quantity" properties
-- Accept ALL numeric sizes, not just 36-44. Include smaller sizes: "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", etc.
-- Use size ranges with "/" as single keys: "25/26", "26/27", "27/28", "35/36", "37/38", etc.
-- If no sizes found, use empty array: []
-- Example: [
-    { "key": "21", "quantity": 2 },
-    { "key": "25", "quantity": 5 },
-    { "key": "36", "quantity": 8 },
-    { "key": "44", "quantity": 3 }
-  ]
-- Example with ranges: [
-    { "key": "25/26", "quantity": 1 },
-    { "key": "26/27", "quantity": 2 },
-    { "key": "27/28", "quantity": 1 }
-  ]
-SIZE HANDLING:
-- If you see a size matrix (TAGLIA/Größe with shoe sizes and quantities), extract them as stock array entries
-- Size ranges with "/" are single keys: "25/26", "26/27", "27/28"
-- MERGE items with identical "label" AND "articleNumber":
-  - Combine their stock arrays
-  - Sum quantities if same size appears in multiple entries
-Storage Location:
-- Extract from destination/shipping address
-- Look for: "DESTINAZIONE", city names, or warehouse codes
-- Default: "" if not found
+
+DOCUMENT TYPES YOU'LL ENCOUNTER:
+
+TYPE 1 - DUCAL/PIO DUSINI (Italian):
+- Header: "DOCUMENTO DI TRASPORTO", "ORTOPÄDIE - LEDER - ZUBEHÖR"
+- Columns: CODICE E DESCRIZIONE ARTICOLO | CALZATE E QUANTITA | U.M. | QUANTITA' | PREZZO
+- Size matrix in rows like: 35 36 37 38 39 40 41 42 (with quantities below)
+- Destination: Look for "DESTINAZIONE" section (e.g., "SAN GIORGIO-BRUNICO")
+
+TYPE 2 - SPANNRIT (German):
+- Header: "Rechnung", "SPANNRIT GmbH"
+- Columns: Artikel | Menge ME | Einzelpreis | Gesamtpreis
+- Format: Article code, description, then "Paar / Größe" table showing sizes and quantities
+- Destination: Address section (e.g., "39031 ST. GEORGEN")
+
+TYPE 3 - ORTHOTECH (German):
+- Header: "Rechnung Nr:", "ORTHOTECH GmbH"
+- Columns: Pos. | Artikelnr. | Artikelbezeichnung | Größe | Menge | Einzelpreis | Betrag EUR
+- Each size is a SEPARATE row (e.g., size 6, 1,00 Paar on one line)
+- Destination: Customer address in header
+
+EXTRACTION RULES:
+
+Supplier:
+- Document header company name
+- Examples: "PIO DUSINI", "SPANNRIT", "DUCAL ORTHOPEDICS", "ORTHOTECH"
+
+Destination (storageLocation):
+- Italian docs: "DESTINAZIONE" field
+- German docs: Shipping address or customer address
+- Extract city only (e.g., "SAN GIORGIO-BRUNICO", "ST. GEORGEN", "Stockdorf")
+
+Article Number:
+- Code at start of product line or separate column
+- Examples: "2503050000", "Z957800D2260", "059802", "M7135000084"
+
+Label (Description):
+- Full product description including color, material, specifications
+- Examples:
+  * "LUNASOFT SLW MM 20 C.09 BIANCO"
+  * "Fo. 95 Lazr Memopur rot Cora black Pelotte eingeschäumt"
+  * "Antistatik, schwarz, mit Bezug"
+  * "Memopur weiß 1 mm Lappen: 33,5 cm x 12 cm"
+
+STOCK EXTRACTION - 3 METHODS:
+
+METHOD 1 - Size Matrix (DUCAL/PIO DUSINI style):
+Look for horizontal size rows:
+Row 1: 35  36  37  38  39  40  41  42
+Row 2: 43  44  45  46  47  48  49  50
+Below, find corresponding quantities.
+
+Example:
+Sizes:  35  36  37  38  39  40  41  42
+Qtys:   -   -   -   -   5   -   -   -
+Result: [{ "key": "39", "quantity": 5 }]
+
+METHOD 2 - Size Table (SPANNRIT style):
+Look for "Paar / Größe" or "Paar/Größe" table:
+| 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 |
+| 2  | 5  | 8  | 8  | 8  | 5  | 3  | 3  | 2  |
+
+Extract each size-quantity pair where quantity > 0.
+
+METHOD 3 - Separate Rows (ORTHOTECH style):
+Each size is its own line item:
+Pos.13: Artikelnr 059802, Größe 6, Menge 1,00 Paar
+Pos.14: Artikelnr 059802, Größe 7, Menge 2,00 Paar
+
+Same article number = same item, combine sizes into stock array.
+
+METHOD 4 - Direct Quantity (No sizes):
+If "Menge" shows quantity but no size breakdown:
+- Use unit as key: "25 Paar" → [{ "key": "Paar", "quantity": 25 }]
+- Or "1,00 NR" → [{ "key": "NR", "quantity": 1 }]
+
+SIZE FORMATS:
+- Regular: "36", "37", "38", etc. (21-50 range)
+- Ranges: "25/26", "26/27", "27/28", "35/36", "37/38"
+- Units: "Paar", "NR", "Stück" (when no size specified)
+
+QUANTITY PARSING:
+- European decimals: "1,00" = 1, "5,00" = 5
+- Empty cells or "-" = skip (0 quantity)
+- Only include sizes with quantity > 0
+
+MERGING RULES:
+- Same articleNumber + same label = ONE item
+- Combine stock arrays, sum quantities for duplicate sizes
+- Keep first occurrence of supplier, storageLocation
+
 Status:
-- "Low" if total quantity < 2 or explicitly marked as low
-- "OK" otherwise
-OUTPUT FORMAT - Return ONLY valid JSON, no extra text:
+- Sum all quantities in stock array
+- If total < 2: "Low"
+- Otherwise: "OK"
+
+EXAMPLES:
+
+Example 1 (DUCAL):
 {
-  "items": [
-    {
-      "label": "product name and color",
-      "articleNumber": "SKU code",
-      "storageLocation": "city or warehouse",
-      "supplier": "company name",
-      "stock": [
-        { "key": "36", "quantity": 5 },
-        { "key": "37", "quantity": 8 }
-      ],
-      "status": "OK"
-    }
-  ]
+  "label": "LUNASOFT SLW MM 20 C.09 BIANCO",
+  "articleNumber": "2503050000",
+  "storageLocation": "SAN GIORGIO-BRUNICO",
+  "supplier": "PIO DUSINI",
+  "stock": [{ "key": "NR", "quantity": 1 }],
+  "status": "Low"
 }
-Now extract all shoe items from this OCR text. Return ONLY the JSON object.
+
+Example 2 (SPANNRIT):
+{
+  "label": "Fo. 95 Lazr Memopur rot Cora black Pelotte eingeschäumt",
+  "articleNumber": "Z957800D2260",
+  "storageLocation": "ST. GEORGEN",
+  "supplier": "SPANNRIT",
+  "stock": [
+    { "key": "36", "quantity": 2 },
+    { "key": "37", "quantity": 5 },
+    { "key": "38", "quantity": 8 }
+  ],
+  "status": "OK"
+}
+
+Example 3 (ORTHOTECH - merged rows):
+{
+  "label": "Antistatik, schwarz, mit Bezug",
+  "articleNumber": "059802",
+  "storageLocation": "Stockdorf",
+  "supplier": "ORTHOTECH",
+  "stock": [
+    { "key": "6", "quantity": 1 },
+    { "key": "7", "quantity": 2 },
+    { "key": "8", "quantity": 2 }
+  ],
+  "status": "OK"
+}
+
+CRITICAL REMINDERS:
+- Scan ENTIRE document, extract ALL items
+- Look carefully at table structure (horizontal matrix vs vertical rows)
+- Parse European decimals correctly (comma = decimal point)
+- Merge items with same article number
+- Only include non-zero quantities
+- Return valid JSON only, no markdown
+
+Now analyze this document and extract all items. Return ONLY the JSON object.
 `;
 
     const parts = [
@@ -104,9 +201,6 @@ Now extract all shoe items from this OCR text. Return ONLY the JSON object.
             },
             config: {
                 responseModalities: [Modality.TEXT],
-                thinkingConfig: {
-                    thinkingBudget: 0, 
-                }
             },
         });
 
@@ -134,16 +228,36 @@ Now extract all shoe items from this OCR text. Return ONLY the JSON object.
             try {
                 let cleaned = text
                     .replace(/^```(?:json)?\n?/, "")
-                    .replace(/\n?```$/, "");
+                    .replace(/\n?```$/, "")
+                    .trim();
+
                 const data = JSON.parse(cleaned);
-                console.log("Extracted Data:", data.items);
+                console.log("===== EXTRACTED WAREHOUSE DATA =====");
+                console.log(JSON.stringify(data.items, null, 2));
+                console.log("====================================");
+
                 return data.items as WarehouseData[];
             } catch (jsonError) {
+                notify({
+                    title: "Scanfehler",
+                    message:
+                        "Konnte Rechnung nicht analysieren. Bitte versuchen Sie es erneut.",
+                    type: "error",
+                });
                 console.error("Failed to parse JSON:", jsonError);
+                console.log("Raw response was:", text);
+                return [];
             }
         }
     } catch (error) {
+        notify({
+            title: "Scanfehler",
+            message: "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+            type: "error",
+        });
         console.error("Error during Google GenAI call:", error);
         return [];
     }
+
+    return [];
 }

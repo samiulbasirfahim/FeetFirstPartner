@@ -62,7 +62,7 @@ REQUIRED OUTPUT STRUCTURE:
 
 FIELD EXTRACTION RULES:
 
-🩺 PATIENTENDATEN (PATIENT DATA):
+PATIENTENDATEN (PATIENT DATA):
 
 Gender:
 - Look for: "Herr"/"Mr" = "man", "Frau"/"Mrs"/"Ms" = "woman"
@@ -116,7 +116,7 @@ Date of Prescription (Datum der Verordnung):
 - Example: "24.02.2016" → "2016-02-24"
 - Default: ""
 
-💳 VERSICHERUNGSDATEN (INSURANCE DATA):
+VERSICHERUNGSDATEN (INSURANCE DATA):
 
 Health Insurance Provider (Kostenträger / Krankenkasse):
 - Look for: "Krankenkasse bzw. Kostenträger", "Kostenträger", "Krankenkasse", "Versicherung"
@@ -160,7 +160,7 @@ Physician ID (Arzt-Nr / LANR):
 - Examples: "732269410", "000000-42", "LANR"
 - Default: ""
 
-⚕️ MEDIZINISCHE DATEN (MEDICAL DATA):
+MEDIZINISCHE DATEN (MEDICAL DATA):
 
 Medical Diagnosis (Ärztliche Diagnose):
 - Look for: "Diagnose", "Diagnose:", "Ärztliche Diagnose", "Diagnosis", "ICD", "Befund"
@@ -185,49 +185,42 @@ Type of Prescription (Art der Verordnung / Einlage):
 - Default: ""
 
 Importance (BVG Boxes):
-- CRITICAL: Look at the BVG header section in the TOP RIGHT CORNER of the document
-- Location: Row of 5 boxes with these EXACT labels (may be split across 2 lines):
-  1. "BVG" 
-  2. "Hilfs-mittel" or "Hilfsmittel" (may break as "Hilfs-" on line 1, "mittel" on line 2)
-  3. "Impf-stoff" or "Impfstoff" (may break as "Impf-" on line 1, "stoff" on line 2)
-  4. "Spr.-St. Bedarf" or "Spr.-St.Bedarf" (may break across lines)
-  5. "Begr.-Pflicht" (may break across lines)
-- The boxes are small squares located directly ABOVE "Zuzahlung" and "Gesamt-Brutto" sections
-- Visual appearance: Each box may contain a number OR be empty/highlighted with color
+- CRITICAL: Look at the prescription type boxes in the TOP RIGHT CORNER. Their layout varies.
+- There are two common layouts:
+  1.  **5-Box Layout (Muster 16):** One 'BVG' box, often separate, followed by a row of 4 boxes: 'Hilfsmittel', 'Impfstoff', 'Spr.-St.Bedarf', 'Begr.-Pflicht'. (See examples 2, 3, 6).
+  2.  **Partial Layout (Other/Older):** Only specific boxes are present, e.g., just 'BVG' and 'Spr.-St.Bedarf'. The other 3 boxes are physically missing. (See examples 4, 5).
 
-EXTRACTION RULES FOR EACH BOX:
-1. Look at EACH of the 5 boxes individually
-2. If a box contains a visible number (like 6, 7, 8, 9), use that number
-3. If a box is highlighted/colored but shows no number, try to infer:
-   - BVG box → typically 0 or empty
-   - Hilfsmittel box → typically 6
-   - Impfstoff box → typically 7
-   - Spr.-St.Bedarf box → typically 8
-   - Begr.-Pflicht box → typically 9
-4. If a box is empty/white with no highlight, use 0
+EXTRACTION STRATEGY:
+1.  **First, determine the layout.** Check if the 4-box row (Hilfsmittel, Impfstoff, etc.) is present next to 'BVG'.
+2.  **IF YES (5-Box Layout is present):**
+    - Use this reliable serial/positional logic:
+    - "BVG": Get value from the 'BVG' box.
+    - "Hilfsmittel": Get value from the **1st box** in the 4-box row.
+    - "Impfstoff": Get value from the **2nd box** in the 4-box row.
+    - "Spr.-St.Bedarf": Get value from the **3rd box** in the 4-box row.
+    - "Begr.-Pflicht": Get value from the **4th box** in the 4-box row.
+3.  **IF NO (Partial Layout is present):**
+    - Do NOT use positional logic. You MUST find each box by its specific label.
+    - "BVG": Find the 'BVG' box by its label. Get its value. If no 'BVG' box, use 0.
+    - "Hilfsmittel": Find the 'Hilfsmittel' box by its label. Get its value. If no 'Hilfsmittel' box, use 0.
+    - "Impfstoff": Find the 'Impfstoff' box by its label. Get its value. If no 'Impfstoff' box, use 0.
+    - "Spr.-St.Bedarf": Find the 'Spr.-St.Bedarf' box by its label. Get its value. If no 'Spr.-St.Bedarf' box, use 0.
+    - "Begr.-Pflicht": Find the 'Begr.-Pflicht' box by its label. Get its value. If no 'Begr.-Pflicht' box, use 0.
+
+CRITICAL - CROSSED OUT BOXES (Applies to BOTH layouts):
+- If a box has an X mark, slash (/), diagonal line, or any pen/ink crossing through it, its value is **0**.
+- This is true EVEN IF a number (like '7') is visible *under* the crossing mark.
+- If a box is present but empty and not crossed, its value is **0**.
+- If a box is not present at all, its value is **0**.
 
 Return as object with EXACT keys:
 {
-  "BVG": number (from BVG box, or 0 if empty),
-  "Hilfsmittel": number (from Hilfs-mittel box, typically 6 if highlighted, or 0 if empty),
-  "Impfstoff": number (from Impf-stoff box, typically 7 if highlighted, or 0 if empty),
-  "Spr.-St.Bedarf": number (from Spr.-St. Bedarf box, typically 8 if highlighted, or 0 if empty),
-  "Begr.-Pflicht": number (from Begr.-Pflicht box, typically 9 if highlighted, or 0 if empty)
+  "BVG": number (0 if crossed/missing/empty, otherwise value),
+  "Hilfsmittel": number (0 if crossed/missing/empty, otherwise value),
+  "Impfstoff": number (0 if crossed/missing/empty, otherwise value),
+  "Spr.-St.Bedarf": number (0 if crossed/missing/empty, otherwise value),
+  "Begr.-Pflicht": number (0 if crossed/missing/empty, otherwise value)
 }
-
-Real examples from prescriptions:
-- Image shows boxes with "6" and "9" visible/highlighted → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 9}
-- Only "6" visible in Hilfsmittel box → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 0}
-- All boxes empty → {"BVG": 0, "Hilfsmittel": 0, "Impfstoff": 0, "Spr.-St.Bedarf": 0, "Begr.-Pflicht": 0}
-- All boxes have numbers 6,7,8,9 → {"BVG": 0, "Hilfsmittel": 6, "Impfstoff": 7, "Spr.-St.Bedarf": 8, "Begr.-Pflicht": 9}
-
-CRITICAL REMINDERS:
-- Look for the LABELS above each box to identify which box is which
-- Labels may be hyphenated or split across 2 lines (e.g., "Hilfs-" / "mittel")
-- ALL 5 boxes MUST be in the response, use 0 for any missing or empty boxes
-- Values must be numbers, not strings
-- Do NOT confuse with other numbers on the form (Kassen-Nr., Versicherten-Nr., Betriebsstätten-Nr.)
-- The row of boxes is in the TOP RIGHT corner, above the payment/billing section
 
 IMPORTANT NOTES:
 - All fields must be strings EXCEPT "importance" which is an object with number values
