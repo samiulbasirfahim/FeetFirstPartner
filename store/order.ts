@@ -11,7 +11,7 @@ const now = new Date();
 
 export const initialOrders: Order[] = [
     {
-        id: 1,
+        id: 100,
         orderNumber: "ORD-1001",
         customerName: "Muster GmbH",
         status: "pending",
@@ -20,7 +20,7 @@ export const initialOrders: Order[] = [
         price: 250.0,
     },
     {
-        id: 2,
+        id: 200,
         orderNumber: "ORD-1002",
         customerName: "Beispiel AG",
         status: "shipped",
@@ -29,7 +29,7 @@ export const initialOrders: Order[] = [
         price: 450.0,
     },
     {
-        id: 3,
+        id: 300,
         orderNumber: "ORD-1003",
         customerName: "Demo Co.",
         status: "completed",
